@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/sergey-shambir/it12.su/issues"
   },
-  "homepage": "https://github.com/sergey-shambir/it12.su#readme"
+  "homepage": "https://github.com/sergey-shambir/it12.su#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
 }
