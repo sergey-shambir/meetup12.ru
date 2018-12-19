@@ -1,11 +1,8 @@
-const express = require('express');
-const path = require('path');
+const http = require('http');
+const serveStatic = require('serve-static');
 
-const app = express();
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.use(express.favicon(path.join(__dirname, 'www', 'favicon.ico')));
+const app = require('./src/app');
+const config = require('./src/config');
 
 app.get('/', function(req, res) {
     res.redirect('/events')
@@ -38,3 +35,9 @@ app.get('/profile', function(req, res) {
 app.get('/members', function(req, res) {
     res.send('TODO: members list')
 });
+
+app.use(serveStatic(app.get('www')));
+
+const port = config.get('port');
+console.log(`starting server on :${port}...`)
+http.createServer(app).listen(config.get('port'));
