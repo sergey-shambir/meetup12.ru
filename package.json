@@ -1,0 +1,19 @@
+{
+  "name": "it12su",
+  "version": "1.0.0",
+  "description": "it12.su site",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sergey-shambir/it12.su.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sergey-shambir/it12.su/issues"
+  },
+  "homepage": "https://github.com/sergey-shambir/it12.su#readme"
+}
