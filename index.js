@@ -1,8 +1,41 @@
 const http = require('http');
 const serveStatic = require('serve-static');
+const express = require('express');
+const favicon = require('serve-favicon');
+const path = require('path');
+const compression = require('compression');
+const cookieSession = require('cookie-session');
+const timeout = require('connect-timeout');
+const errorhandler = require('errorhandler');
 
-const app = require('./src/app');
 const config = require('./src/config');
+const logging = require('./src/logging');
+
+const staticDir = path.join(__dirname, 'www');
+const viewsDir = path.join(__dirname, 'views');
+
+const app = express();
+
+app.set('views', viewsDir);
+app.set('view engine', 'ejs');
+
+app.use(favicon(path.join(staticDir, 'favicon.ico')));
+
+app.use(compression());
+
+app.use(timeout('3s'));
+
+app.use(cookieSession({
+    name: 'session',
+    keys: [ config.get('session_secret') ],
+}));
+
+app.use(logging.logResponse);
+
+if (app.get('env') == 'development')
+{
+    app.use(errorhandler());
+}
 
 app.get('/', function(req, res) {
     res.redirect('/events')
@@ -36,8 +69,9 @@ app.get('/members', function(req, res) {
     res.send('TODO: members list')
 });
 
-app.use(serveStatic(app.get('www')));
+app.use(serveStatic(staticDir));
 
 const port = config.get('port');
-console.log(`starting server on :${port}...`)
-http.createServer(app).listen(config.get('port'));
+http.createServer(app).listen(port, () => {
+    logging.logger.info(`started server on :${port}`);
+});
