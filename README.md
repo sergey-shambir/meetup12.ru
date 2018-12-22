@@ -1,2 +1,3 @@
-# it12.su
-it12.su source code
+# meetup12.ru
+
+meetup12.ru source code
