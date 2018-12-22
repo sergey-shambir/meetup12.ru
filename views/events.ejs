@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <%- include('layouts/head', { title: 'События' }); %>
+  <%- include('layouts/head', {
+    title: 'События'
+  }); %>
   <body>
-    <%- include('layouts/header'); -%>
+    <%- include('layouts/navbar', { navbar: page.navbar }); -%>
     <article>
     </article>
     <%- include('layouts/footer'); -%>

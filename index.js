@@ -42,7 +42,14 @@ app.get('/', function(req, res) {
 });
 
 app.get('/events', function(req, res) {
-    res.render('events');
+    const page = {
+        navbar: {
+            pageUrl: req.path
+        }
+    }
+    res.render('events', {
+        page: page
+    });
 });
 
 app.get('/events/new', function(req, res) {
@@ -66,7 +73,14 @@ app.get('/profile', function(req, res) {
 });
 
 app.get('/members', function(req, res) {
-    res.render('members');
+    const page = {
+        navbar: {
+            pageUrl: req.path
+        }
+    }
+    res.render('events', {
+        page: page
+    });
 });
 
 app.use(serveStatic(staticDir));
