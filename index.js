@@ -38,15 +38,15 @@ if (app.get('env') == 'development')
 }
 
 app.get('/', function(req, res) {
-    res.redirect('/events')
+    res.redirect('/events');
 });
 
 app.get('/events', function(req, res) {
-    res.send('TODO: events page');
+    res.render('events');
 });
 
 app.get('/events/new', function(req, res) {
-    res.send('TODO: new event page');
+    res.render('events-new');
 });
 
 app.post('/events/new', function(req, res) {
@@ -54,7 +54,7 @@ app.post('/events/new', function(req, res) {
 });
 
 app.get('/login', function(req, res) {
-    res.send('TODO: login page');
+    res.render('login');
 });
 
 app.post('/login', function(req, res) {
@@ -62,11 +62,11 @@ app.post('/login', function(req, res) {
 });
 
 app.get('/profile', function(req, res) {
-    res.send('TODO: profile page')
+    res.render('profile');
 });
 
 app.get('/members', function(req, res) {
-    res.send('TODO: members list')
+    res.render('members');
 });
 
 app.use(serveStatic(staticDir));
