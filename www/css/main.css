@@ -1,0 +1,6 @@
+
+/* event card overrides */
+.eventcard .row
+{
+    margin-bottom: 0 !important;
+}

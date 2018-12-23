@@ -6,6 +6,14 @@
   <body>
     <%- include('layouts/navbar', { navbar: page.navbar }); -%>
     <div class="container">
+      <div class="row mb-1">
+        <div class="col-md-12">
+          <div class="mt-4">
+          </div>
+          <%- include('layouts/eventcard'); -%>
+          <%- include('layouts/eventcard'); -%>
+        </div>
+      </div>
     </div>
     <%- include('layouts/footer'); -%>
   </body>
