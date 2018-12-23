@@ -1,0 +1,10 @@
+<li class="<%= (navbar.pageUrl == url) ? 'nav-item dropdown active' : 'nav-item dropdown' %>">
+  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <%= name %>
+  </a>
+  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+    <% items.forEach(function (item) { %>
+      <a class="dropdown-item" href="<%= item.url %>"><%= item.name %></a>
+    <% }); %>
+  </div>
+</li>

@@ -9,15 +9,25 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-    <%- include('../components/navlink', {
+    <%- include('../components/navdropdown', {
+      pageUrl: navbar.pageUrl,
       url: '/events',
       name: 'События',
-      pageUrl: navbar.pageUrl,
+      items: [{
+        url: '/events',
+        name: 'Предстоящие'
+      }, {
+        url: '/events?passed=1',
+        name: 'Прошедшие'
+      }, {
+        url: '/events/new',
+        name: 'Добавить'
+      }]
     }); %>
     <%- include('../components/navlink', {
+      pageUrl: navbar.pageUrl,
       url: '/members',
       name: 'Участники',
-      pageUrl: navbar.pageUrl,
     }); %>
   </div>
 </nav>
