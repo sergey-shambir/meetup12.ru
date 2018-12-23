@@ -78,7 +78,7 @@ app.get('/members', function(req, res) {
             pageUrl: req.path
         }
     }
-    res.render('events', {
+    res.render('members', {
         page: page
     });
 });
