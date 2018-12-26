@@ -27,7 +27,7 @@ app.use(timeout('3s'));
 
 app.use(cookieSession({
     name: 'session',
-    keys: [ config.get('session_secret') ],
+    keys: [ config.sessionSecret() ],
 }));
 
 app.use(logging.logResponse);
@@ -85,7 +85,7 @@ app.get('/members', function(req, res) {
 
 app.use(serveStatic(staticDir));
 
-const port = config.get('port');
+const port = config.port();
 http.createServer(app).listen(port, () => {
     logging.logger.info(`started server on :${port}`);
 });

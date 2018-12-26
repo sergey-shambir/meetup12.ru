@@ -9,13 +9,24 @@ nconf.defaults({
     'port': 3000,
 });
 
-/**
- * Returns config value by key
- * @param {string} key
- */
-function get(key)
+class Config
 {
-    return nconf.get(key);
+    static port()
+    {
+        return parseInt(nconf.get('port'), 10);
+    }
+
+    static sessionSecret()
+    {
+        return '' + nconf.get('session_secret')
+    }
+
+    // Returns string in format 'postgres://username:password@host/database'
+    static dsn()
+    {
+        const value = '' + nconf.get('dsn');
+        return value.match(/postgress:\/\/\w+\:\w+\@\w+\/\w+/);
+    }
 }
 
-module.exports.get = get
+module.exports = Config;
