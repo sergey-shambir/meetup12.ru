@@ -1,5 +1,6 @@
 FROM node:10-alpine
 
+ENV NODE_ENV prod
 ADD src /app/src
 ADD www /app/www
 ADD views /app/views

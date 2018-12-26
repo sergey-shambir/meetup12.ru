@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  meetup12ru-db:
+    image: postgres:11-alpine
+    container_name: meetup12ru-db
+    volumes:
+      - "./data:/usr/app/data"
+    environment:
+      POSTGRES_USER: meetup12ru
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: meetup12ru
+
+  meetup12ru:
+    image: sshambir/meetup12ru:master
+    container_name: meetup12ru
+    ports:
+      - 80:3000
+    depends_on:
+      - meetup12ru-db
+    environment:
+      NODE_ENV: dev
+      M12_DSN: "postgres://meetup12ru:1234@localhost/meetup12ru"

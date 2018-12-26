@@ -7,8 +7,12 @@ build:
 	docker build -t sshambir/meetup12ru:master .
 
 .PHONY: run
-run: build
-	docker run -it --rm -p 80:3000 sshambir/meetup12ru:master
+up: build
+	docker-compose up -d
+
+.PHONY: stop
+down:
+	docker-compose down
 
 .PHONY: push
 push: build
