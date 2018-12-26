@@ -10,6 +10,7 @@ const errorhandler = require('errorhandler');
 
 const config = require('./src/config');
 const logging = require('./src/logging');
+const db = require('./src/db');
 
 const staticDir = path.join(__dirname, 'www');
 const viewsDir = path.join(__dirname, 'views');
@@ -36,6 +37,14 @@ if (app.get('env') == 'development')
 {
     app.use(errorhandler());
 }
+
+const dbClient = new db.Client(config.dsn());
+
+// Inject repository into each request.
+app.use(function (req, res, next) {
+    req.repo = dbClient.repository();
+    next();
+});
 
 app.get('/', function(req, res) {
     res.redirect('/events');
@@ -85,7 +94,11 @@ app.get('/members', function(req, res) {
 
 app.use(serveStatic(staticDir));
 
-const port = config.port();
-http.createServer(app).listen(port, () => {
-    logging.logger.info(`started server on :${port}`);
-});
+void async function() {
+    await dbClient.connect();
+    const port = config.port();
+    http.createServer(app).listen(port, () => {
+        logging.logger.info(`started server on :${port}`);
+    });
+    await dbClient.end()
+}()

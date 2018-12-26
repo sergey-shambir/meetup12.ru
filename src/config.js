@@ -13,18 +13,18 @@ class Config
 {
     static port()
     {
-        return parseInt(nconf.get('port'), 10);
+        return parseInt(nconf.get('M12_PORT'), 10);
     }
 
     static sessionSecret()
     {
-        return '' + nconf.get('session_secret')
+        return '' + nconf.get('M12_SESSION_SECRET')
     }
 
     // Returns string in format 'postgres://username:password@host/database'
     static dsn()
     {
-        const value = '' + nconf.get('dsn');
+        const value = '' + nconf.get('M12_DSN');
         return value.match(/postgress:\/\/\w+\:\w+\@\w+\/\w+/);
     }
 }
