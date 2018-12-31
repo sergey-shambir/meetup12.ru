@@ -11,6 +11,7 @@ const logger = winston.createLogger({
     ],
 });
 
+// Logs http server response status and stats.
 function logResponse(req, res, next)
 {
     const url = req.url;
@@ -31,5 +32,21 @@ function logResponse(req, res, next)
     next();
 }
 
+/**
+ * This function intended to replace `console.log`, `console.error`,
+ *  it redirects any logging to winston.
+ * @param {string} level - logging level, e.g. 'error'
+ * @param  {...any} values - values to log
+ */
+function logValues(level, ...values)
+{
+    const argsStr = args.map((arg) => { return JSON.stringify(arg); }).join(' ');
+    this.logger.log(
+        level,
+        argsStr
+    );
+}
+
 module.exports.logger = logger;
+module.exports.logValues = logValues;
 module.exports.logResponse = logResponse;

@@ -1,13 +1,12 @@
 const nconf = require('nconf');
-const path = require('path')
-
-nconf.env();
-nconf.argv();
-nconf.file(path.join(__dirname, '..', 'config.json'));
+const path = require('path');
 
 nconf.defaults({
     'port': 3000,
 });
+
+nconf.env();
+nconf.argv();
 
 class Config
 {
@@ -24,8 +23,7 @@ class Config
     // Returns string in format 'postgres://username:password@host/database'
     static dsn()
     {
-        const value = '' + nconf.get('M12_DSN');
-        return value.match(/postgress:\/\/\w+\:\w+\@\w+\/\w+/);
+        return '' + nconf.get('SITE_DSN');
     }
 }
 
