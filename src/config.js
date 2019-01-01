@@ -2,7 +2,7 @@ const nconf = require('nconf');
 const path = require('path');
 
 nconf.defaults({
-    'port': 3000,
+    'SITE_PORT': '3000',
 });
 
 nconf.env();
@@ -12,12 +12,23 @@ class Config
 {
     static port()
     {
-        return parseInt(nconf.get('M12_PORT'), 10);
+        const portStr = nconf.get('SITE_PORT');
+        const port = parseInt(portStr, 10);
+        if (isNaN(port))
+        {
+            throw new Error(`invalid port: ${portStr}`);
+        }
+        return port;
     }
 
     static sessionSecret()
     {
-        return '' + nconf.get('M12_SESSION_SECRET')
+        const secret = nconf.get('SITE_SESSION_SECRET');
+        if (!secret)
+        {
+            throw new Error("session secret not set");
+        }
+        return secret;
     }
 
     // Returns string in format 'postgres://username:password@host/database'

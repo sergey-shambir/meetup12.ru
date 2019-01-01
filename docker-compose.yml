@@ -21,3 +21,4 @@ services:
     environment:
       NODE_ENV: dev
       SITE_DSN: "postgres://meetup12ru:1234@meetup12ru-db/meetup12ru"
+      SITE_SESSION_SECRET: "amqg7i0Q"

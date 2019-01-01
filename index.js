@@ -1,4 +1,3 @@
-const http = require('http');
 const serveStatic = require('serve-static');
 const express = require('express');
 const favicon = require('serve-favicon');
@@ -8,9 +7,10 @@ const cookieSession = require('cookie-session');
 const timeout = require('connect-timeout');
 const errorhandler = require('errorhandler');
 
+const db = require('./src/db');
 const config = require('./src/config');
 const logging = require('./src/logging');
-const db = require('./src/db');
+const { Server } = require('./src/server');
 
 const staticDir = path.join(__dirname, 'www');
 const viewsDir = path.join(__dirname, 'views');
@@ -94,11 +94,13 @@ app.get('/members', function(req, res) {
 
 app.use(serveStatic(staticDir));
 
-void async function() {
+const port = config.port();
+const server = new Server();
+server.preListenAction(async () => {
     await dbClient.connect();
-    const port = config.port();
-    http.createServer(app).listen(port, () => {
-        logging.logger.info(`started server on :${port}`);
-    });
-    await dbClient.end()
-}()
+});
+server.postListenAction(async () => {
+    await dbClient.end();
+});
+server.listen(port);
+console.log("HACK: logging, shutting down");

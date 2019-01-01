@@ -1,20 +1,10 @@
 const pg = require('pg');
-const sqlmigrations = require('sql-migrations');
 const path = require('path');
-const fs = require('fs');
-const { promisify } = require('util');
 const { Repository } = require('./repository');
 const { logValues } = require('./logging');
 
-const readFile = promisify(fs.readFile);
-
-const schemaPath = path.join(__dirname, 'schema', 'schema.sql');
-
-// Disable info logging in sqlmigrations library
-sqlmigrations.setLogger({
-    log: () => {},
-    error: (...args) => { logValues('error', ...args) },
-});
+const migrateDatabase = require('sql-migrations').migrate;
+const PostgresAdapter = require('sql-migrations/adapters/pg');
 
 /**
  * Parses string like 'postgres://username:password@host/database'
@@ -44,8 +34,8 @@ class Client
      */
     constructor(dsnString)
     {
+        this._dsnString = dsnString;
         this._dsn = parsePostgresDSN(dsnString);
-        this._client = new pg.Client(dsnString);
     }
 
     /**
@@ -53,20 +43,27 @@ class Client
      */
     async connect()
     {
-        await this._client.connect();
-
         // setup database before first use
-        const schema = await readFile(schemaPath);
-        await this.db.query(schema);
-
-        sqlmigrations.migrate({
+        const config = {
             migrationsDir: path.resolve(__dirname, '..', 'data/migrations'),
             adapter: 'pg',
             host: this._dsn.host,
             db: this._dsn.database,
-            username: this._dsn.username,
+            user: this._dsn.username,
             password: this._dsn.password,
-        });
+        };
+        const logger = {
+            log: () => {},
+            error: (...args) => { logValues('error', ...args) },
+        };
+        const adapter = new PostgresAdapter(config, logger);
+        await migrateDatabase(config, adapter);
+
+        console.log("this._dsnString", this._dsnString)
+        this._client = new pg.Client(this._dsnString);
+        console.log("finished new pg.Client")
+        await this._client.connect();
+        console.log("finished .connect()")
     }
 
     /**

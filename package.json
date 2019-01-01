@@ -1,7 +1,7 @@
 {
-  "name": "it12su",
+  "name": "meetup12ru",
   "version": "1.0.0",
-  "description": "it12.su site",
+  "description": "meetup12.ru site",
   "main": "index.js",
   "scripts": {
     "test": "test",
@@ -10,19 +10,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sergey-shambir/it12.su.git"
+    "url": "git+https://github.com/sergey-shambir/meetup12.ru.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sergey-shambir/it12.su/issues"
+    "url": "https://github.com/sergey-shambir/meetup12.ru/issues"
   },
-  "homepage": "https://github.com/sergey-shambir/it12.su#readme",
+  "homepage": "https://github.com/sergey-shambir/meetup12.ru#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",
     "connect-timeout": "^1.9.0",
     "cookie-session": "^2.0.0-beta.3",
+    "deasync": "^0.1.14",
     "ejs": "^2.6.1",
     "errorhandler": "^1.5.0",
     "express": "^4.16.4",
@@ -32,6 +33,7 @@
     "serve-static": "^1.13.2",
     "sql-migrations": "^1.0.5",
     "timeout": "^0.2.1",
+    "wait-for-promise": "^1.0.0",
     "winston": "^3.1.0"
   }
 }
