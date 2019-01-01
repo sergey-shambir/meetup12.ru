@@ -95,7 +95,7 @@ app.get('/members', function(req, res) {
 app.use(serveStatic(staticDir));
 
 const port = config.port();
-const server = new Server();
+const server = new Server(app);
 server.preListenAction(async () => {
     await dbClient.connect();
 });

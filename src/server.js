@@ -1,10 +1,15 @@
+const http = require('http');
 const waitForPromise = require('wait-for-promise');
 const logging = require('./logging');
 
 class Server
 {
-    constructor()
+    /**
+     * @param {Function} router - Express.js router
+     */
+    constructor(router)
     {
+        this._router = router;
         this._preListenActions = [];
         this._postListenActions = [];
     }
@@ -31,7 +36,7 @@ class Server
     listen(port)
     {
         this._runActions(this._preListenActions);
-        http.createServer(app).listen(port, () => {
+        http.createServer(this._router).listen(port, () => {
             console.log("HACK: logging, started listening ", port);
             logging.logger.info(`started listening ${port}`);
         });

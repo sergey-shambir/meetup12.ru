@@ -1,29 +1,24 @@
-CREATE TABLE user (
-    id         SERIAL PRIMARY KEY,
-    created    TIMESTAMPTZ DEFAULT NOW()
-);
+CREATE TYPE ServiceID AS ENUM ('vk', 'timepad', 'yandex');
 
-CREATE TABLE auth_service (
-    id SERIAL PRIMARY KEY,
-    service    VARCHAR(80) PRIMARY KEY
-);
-
-CREATE TABLE auth (
+CREATE TABLE "auth" (
     id         SERIAL PRIMARY KEY,
-    service_id INT 4 NOT NULL,
+    service_id ServiceID NOT NULL,
     profile_id VARCHAR(80) NOT NULL,
     name       VARCHAR(256) NOT NULL,
     url        VARCHAR(256) NOT NULL,
     photo_url  VARCHAR(256),
     created    TIMESTAMPTZ DEFAULT NOW(),
-    INDEX ON auth (service_id, profile_id),
-    CONSTRAINT auth_service_service_id_fkey FOREIGN KEY (service_id) REFERENCES auth_service(service_id) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT no_profile_reuse UNIQUE(service_id, profile_id)
 );
 
-CREATE TABLE auth_ref (
-    user_id INT4 NOT NULL,
-    auth_id INT4 NOT NULL,
-    INDEX ON auth_ref(user_id, auth_id),
-    CONSTRAINT auth_ref_user_id_fkey FOREIGN KEY (user_id) REFERENCES user(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT auth_ref_auth_id_fkey FOREIGN KEY (auth_id) REFERENCES auth(auth_id) ON UPDATE CASCADE ON DELETE CASCADE
+CREATE TABLE "user"
+(
+    id         SERIAL PRIMARY KEY,
+    created    TIMESTAMPTZ DEFAULT NOW(),
+    vk_id      INT4 NOT NULL,
+    timepad_id INT4 NOT NULL,
+    yandex_id  INT4 NOT NULL,
+    CONSTRAINT user_vk_id_key FOREIGN KEY (vk_id) REFERENCES auth(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT user_timepad_id_key FOREIGN KEY (timepad_id) REFERENCES auth(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT user_yandex_id_key FOREIGN KEY (yandex_id) REFERENCES auth(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
