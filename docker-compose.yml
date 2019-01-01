@@ -5,11 +5,14 @@ services:
     image: postgres:11-alpine
     container_name: meetup12ru-db
     volumes:
-      - "./data:/usr/app/data"
+      - "$PWD/data/postgres_files:/var/lib/postgresql/data"
+      - "/etc/passwd:/etc/passwd:ro"
+      - "/etc/group:/etc/group:ro"
     environment:
       POSTGRES_USER: meetup12ru
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: meetup12ru
+    user: "$USER_WITH_GROUP"
 
   meetup12ru:
     image: sshambir/meetup12ru:master

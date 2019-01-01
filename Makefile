@@ -8,7 +8,8 @@ build:
 
 .PHONY: run
 up: build
-	docker-compose up -d
+	mkdir -m 777 -p $(PWD)/data/postgres_files
+	USER_WITH_GROUP="$(shell id -u):$(shell id -g)" docker-compose up -d
 
 .PHONY: stop
 down:
