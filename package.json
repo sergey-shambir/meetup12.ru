@@ -27,12 +27,16 @@
     "ejs": "^2.6.1",
     "errorhandler": "^1.5.0",
     "express": "^4.16.4",
+    "express-promise-router": "^3.0.3",
     "nconf": "^0.10.0",
+    "passport": "^0.4.0",
+    "passport-vkontakte": "^0.3.2",
     "pg": "^7.7.1",
     "serve-favicon": "^2.5.0",
     "serve-static": "^1.13.2",
     "sql-migrations": "^1.0.5",
     "timeout": "^0.2.1",
+    "uuid": "^3.3.2",
     "wait-for-promise": "^1.0.0",
     "winston": "^3.1.0"
   }

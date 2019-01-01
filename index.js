@@ -5,12 +5,16 @@ const path = require('path');
 const compression = require('compression');
 const cookieSession = require('cookie-session');
 const timeout = require('connect-timeout');
+const passport = require('passport');
 const errorhandler = require('errorhandler');
+const expressPromiseRouter = require('express-promise-router');
 
 const db = require('./src/db');
 const config = require('./src/config');
 const logging = require('./src/logging');
 const { Server } = require('./src/server');
+const AuthService = require('./src/AuthService');
+const AuthRouter = require('./src/AuthRouter');
 
 const staticDir = path.join(__dirname, 'www');
 const viewsDir = path.join(__dirname, 'views');
@@ -38,19 +42,25 @@ if (app.get('env') == 'development')
     app.use(errorhandler());
 }
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 const dbClient = new db.Client(config.dsn());
 
-// Inject repository into each request.
-app.use(function (req, res, next) {
-    req.repo = dbClient.repository();
-    next();
-});
+const authRouter = new AuthRouter('/login');
+app.use(authRouter.makeRouter('/', '/login'));
 
-app.get('/', function(req, res) {
+const authService = new AuthService(dbClient.repository());
+authService.use(authRouter);
+
+const router = expressPromiseRouter();
+app.use(router);
+
+router.get('/', function(req, res) {
     res.redirect('/events');
 });
 
-app.get('/events', function(req, res) {
+router.get('/events', function(req, res) {
     const page = {
         navbar: {
             pageUrl: req.path
@@ -61,27 +71,28 @@ app.get('/events', function(req, res) {
     });
 });
 
-app.get('/events/new', function(req, res) {
+router.get('/events/new', function(req, res) {
     res.render('events-new');
 });
 
-app.post('/events/new', function(req, res) {
+router.post('/events/new', function(req, res) {
     res.sendStatus(200);
 });
 
-app.get('/login', function(req, res) {
+router.get('/login', function(req, res) {
+    const page = {
+        navbar: {
+            pageUrl: req.path
+        }
+    }
     res.render('login');
 });
 
-app.post('/login', function(req, res) {
-    res.sendStatus(200);
-});
-
-app.get('/profile', function(req, res) {
+router.get('/profile', function(req, res) {
     res.render('profile');
 });
 
-app.get('/members', function(req, res) {
+router.get('/members', function(req, res) {
     const page = {
         navbar: {
             pageUrl: req.path
@@ -92,7 +103,7 @@ app.get('/members', function(req, res) {
     });
 });
 
-app.use(serveStatic(staticDir));
+router.use(serveStatic(staticDir));
 
 const port = config.port();
 const server = new Server(app);
@@ -103,4 +114,3 @@ server.postListenAction(async () => {
     await dbClient.end();
 });
 server.listen(port);
-console.log("HACK: logging, shutting down");

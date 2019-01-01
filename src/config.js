@@ -1,5 +1,5 @@
 const nconf = require('nconf');
-const path = require('path');
+const os = require('os');
 
 nconf.defaults({
     'SITE_PORT': '3000',
@@ -21,6 +21,16 @@ class Config
         return port;
     }
 
+    static siteHost()
+    {
+        let siteHost = nconf.get('SITE_URL');
+        if (!siteHost)
+        {
+            siteHost = 'localhost';
+        }
+        return siteHost;
+    }
+
     static sessionSecret()
     {
         const secret = nconf.get('SITE_SESSION_SECRET');
@@ -35,6 +45,23 @@ class Config
     static dsn()
     {
         return '' + nconf.get('SITE_DSN');
+    }
+
+    /**
+     * @returns {{ clientID: string, clientSecret: string }}
+     */
+    static vkAppInfo()
+    {
+        const clientID = nconf.get('SITE_VK_APP_ID');
+        const clientSecret = nconf.get('SITE_VK_APP_SECRET');
+        if (!clientID || !clientSecret)
+        {
+            return null;
+        }
+        return {
+            clientID: String(clientID),
+            clientSecret: String(clientSecret)
+        };
     }
 }
 

@@ -37,7 +37,6 @@ class Server
     {
         this._runActions(this._preListenActions);
         http.createServer(this._router).listen(port, () => {
-            console.log("HACK: logging, started listening ", port);
             logging.logger.info(`started listening ${port}`);
         });
         this._runActions(this._postListenActions);
