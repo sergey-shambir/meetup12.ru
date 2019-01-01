@@ -8,9 +8,9 @@ ADD src /app/src
 ADD www /app/www
 ADD views /app/views
 ADD data/migrations /app/data/migrations
+ADD node_modules /app/node_modules
 COPY index.js package.json entrypoint.sh /app/
 WORKDIR /app
-RUN npm install
 
 EXPOSE 3000
 

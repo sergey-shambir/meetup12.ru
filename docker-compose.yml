@@ -15,7 +15,7 @@ services:
     image: sshambir/meetup12ru:master
     container_name: meetup12ru
     ports:
-      - 80:3000
+      - "80:3000"
     depends_on:
       - meetup12ru-db
     environment:
