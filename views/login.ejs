@@ -2,8 +2,24 @@
 <html lang="ru">
   <%- include('layouts/head', { title: 'Авторизация' }); %>
   <body>
-  <%- include('layouts/navbar', { navbar: page.navbar }); -%>
-    <div>
+    <%- include('layouts/navbar', { navbar: page.navbar }); -%>
+    <div class="container">
+      <h2 class="text-center mt-5">
+      Войдите через один из сервисов
+      </h2>
+      <div class="row mb-1">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-2">
+          <%- include('components/auth-button', { link: '/auth/vk', title: 'Авторизоваться через vk.com', img: '/img/auth/logo-vk.png' }); -%>
+        </div>
+        <div class="col-md-2">
+          <%- include('components/auth-button', { link: '/auth/timepad', title: 'Авторизоваться через Timepad', img: '/img/auth/logo-timepad.png' }); -%>
+        </div>
+        <div class="col-md-2">
+          <%- include('components/auth-button', { link: '/auth/yandex', title: 'Авторизоваться через Yandex', img: '/img/auth/logo-yandex.png' }); -%>
+        </div>
+      </div>
     </div>
     <%- include('layouts/footer'); -%>
   </body>

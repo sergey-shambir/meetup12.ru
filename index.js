@@ -65,14 +65,21 @@ router.get('/events', function(req, res) {
         navbar: {
             pageUrl: req.path
         }
-    }
+    };
     res.render('events', {
         page: page
     });
 });
 
 router.get('/events/new', function(req, res) {
-    res.render('events-new');
+    const page = {
+        navbar: {
+            pageUrl: req.path
+        }
+    };
+    res.render('events-new', {
+        page: page
+    });
 });
 
 router.post('/events/new', function(req, res) {
@@ -85,11 +92,20 @@ router.get('/login', function(req, res) {
             pageUrl: req.path
         }
     }
-    res.render('login');
+    res.render('login', {
+        page: page
+    });
 });
 
 router.get('/profile', function(req, res) {
-    res.render('profile');
+    const page = {
+        navbar: {
+            pageUrl: req.path
+        }
+    };
+    res.render('profile', {
+        page: page
+    });
 });
 
 router.get('/members', function(req, res) {
@@ -97,7 +113,7 @@ router.get('/members', function(req, res) {
         navbar: {
             pageUrl: req.path
         }
-    }
+    };
     res.render('members', {
         page: page
     });

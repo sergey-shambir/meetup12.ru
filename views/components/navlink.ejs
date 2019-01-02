@@ -1,9 +1,9 @@
 <% if (url == pageUrl) { %>
-  <li class="nav-item active">
+  <div class="nav-item active">
     <a class="nav-link" href="<%= url %>"><%= name %><span class="sr-only">(current)</span></a>
-  </li>
+  </div>
 <% } else { %>
-  <li class="nav-item">
+  <div class="nav-item">
     <a class="nav-link" href="<%= url %>"><%= name %></a>
-  </li>
+  </div>
 <% } %>

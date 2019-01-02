@@ -8,7 +8,7 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
+    <div class="navbar-nav mr-auto">
     <%- include('../components/navdropdown', {
       pageUrl: navbar.pageUrl,
       url: '/events',
@@ -29,5 +29,13 @@
       url: '/members',
       name: 'Участники',
     }); %>
+    </div>
+    <div class="navbar-nav">
+      <%- include('../components/navlink', {
+        pageUrl: navbar.pageUrl,
+        url: '/login',
+        name: 'Войти',
+      }); %>
+    </div>
   </div>
 </nav>
