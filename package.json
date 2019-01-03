@@ -30,6 +30,7 @@
     "express-promise-router": "^3.0.3",
     "nconf": "^0.10.0",
     "passport": "^0.4.0",
+    "passport-dev": "^1.0.1",
     "passport-vkontakte": "^0.3.2",
     "pg": "^7.7.1",
     "serve-favicon": "^2.5.0",

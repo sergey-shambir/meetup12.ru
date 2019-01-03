@@ -20,6 +20,7 @@ const staticDir = path.join(__dirname, 'www');
 const viewsDir = path.join(__dirname, 'views');
 
 const app = express();
+const isDevEnv = (app.get('env') == 'dev');
 
 app.set('views', viewsDir);
 app.set('view engine', 'ejs');
@@ -37,7 +38,9 @@ app.use(cookieSession({
 
 app.use(logging.logResponse);
 
-if (app.get('env') == 'development')
+console.log("app.get('env')", app.get('env'));
+
+if (isDevEnv)
 {
     app.use(errorhandler());
 }
@@ -48,10 +51,9 @@ app.use(passport.session());
 const dbClient = new db.Client(config.dsn());
 
 const authRouter = new AuthRouter('/login');
-app.use(authRouter.makeRouter('/', '/login'));
-
-const authService = new AuthService(dbClient.repository());
+const authService = new AuthService(dbClient.repository(), isDevEnv);
 authService.use(authRouter);
+app.use('/login', authRouter.makeRouter(authService.serviceIds(), '/', '/login'));
 
 const router = expressPromiseRouter();
 app.use(router);
@@ -93,7 +95,10 @@ router.get('/login', function(req, res) {
         }
     }
     res.render('login', {
-        page: page
+        page: page,
+        env: {
+            isDevEnv: isDevEnv
+        }
     });
 });
 

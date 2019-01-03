@@ -1,10 +1,5 @@
 const passport = require('passport');
 const config = require('./config');
-const {
-    AuthServiceVK,
-    AuthServiceYandex,
-    AuthServiceTimepad,
- } = require('./models');
 const express = require('express');
 
 class AuthRouter
@@ -37,13 +32,14 @@ class AuthRouter
     }
 
     /**
+     * @param {Array<string>} serviceIds - array of service IDs
      * @param {string} successRedirect - route to redirect on auth success
      * @param {string} failureRedirect - route to redirect on auth failure
      */
-    makeRouter(successRedirect, failureRedirect)
+    makeRouter(serviceIds, successRedirect, failureRedirect)
     {
         const router = express.Router();
-        for (let serviceId of [AuthServiceVK, AuthServiceTimepad, AuthServiceYandex])
+        for (let serviceId of serviceIds)
         {
             router.get(this._authRoute(serviceId), passport.authenticate(serviceId));
             router.get(this._callbackRoute(serviceId), passport.authenticate(serviceId, {
@@ -59,7 +55,7 @@ class AuthRouter
      */
     _authRoute(serviceId)
     {
-        return `${serviceId}`;
+        return `/${serviceId}`;
     }
 
     /**

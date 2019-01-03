@@ -26,7 +26,7 @@ class Auth
      *  photoUrl: string
      * }}
      */
-    constructor({id, created, serviceId, profileId, name, photoUrl})
+    constructor({id, createdAt, serviceId, profileId, name, photoUrl})
     {
         this.id = id;
         /**

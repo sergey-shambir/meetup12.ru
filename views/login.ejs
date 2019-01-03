@@ -8,17 +8,27 @@
       Войдите через один из сервисов
       </h2>
       <div class="row mb-1">
+        <% if (env.isDevEnv) { %>
+        <div class="col-md-2">
+        </div>
+        <% } else { %>
         <div class="col-md-3">
         </div>
+        <% } %>
         <div class="col-md-2">
-          <%- include('components/auth-button', { link: '/auth/vk', title: 'Авторизоваться через vk.com', img: '/img/auth/logo-vk.png' }); -%>
+          <%- include('components/auth-button', { link: '/login/vk', title: 'Авторизоваться через vk.com', img: '/img/auth/logo-vk.png' }); -%>
         </div>
         <div class="col-md-2">
-          <%- include('components/auth-button', { link: '/auth/timepad', title: 'Авторизоваться через Timepad', img: '/img/auth/logo-timepad.png' }); -%>
+          <%- include('components/auth-button', { link: '/login/timepad', title: 'Авторизоваться через Timepad', img: '/img/auth/logo-timepad.png' }); -%>
         </div>
         <div class="col-md-2">
-          <%- include('components/auth-button', { link: '/auth/yandex', title: 'Авторизоваться через Yandex', img: '/img/auth/logo-yandex.png' }); -%>
+          <%- include('components/auth-button', { link: '/login/yandex', title: 'Авторизоваться через Yandex', img: '/img/auth/logo-yandex.png' }); -%>
         </div>
+        <% if (env.isDevEnv) { %>
+        <div class="col-md-2">
+          <%- include('components/auth-button', { link: '/login/dev', title: 'Авторизоваться просто так', img: '/img/auth/backdoor.png' }); -%>
+        </div>
+        <% } %>
       </div>
     </div>
     <%- include('layouts/footer'); -%>
