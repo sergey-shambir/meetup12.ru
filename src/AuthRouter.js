@@ -28,7 +28,7 @@ class AuthRouter
     callbackURL(serviceId)
     {
         const route = this._callbackRoute(serviceId);
-        returh `${this._host}${this._routePrefix}${route}`;
+        return `${this._host}${this._routePrefix}${route}`;
     }
 
     /**

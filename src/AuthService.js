@@ -1,30 +1,28 @@
 const passport = require('passport');
 const AuthStrategyVK = require('passport-vkontakte').Strategy;
-const AuthStrategyDev = require('passport-dev').Strategy;
+const AuthStrategyMeetup = require('passport-meetup').Strategy;
+const AuthStrategyYandex = require('passport-yandex').Strategy;
 
 const config = require('./config');
 const repository = require('./repository');
 const {
     AuthServiceVK,
-    AuthServiceYandex,
+    AuthServiceMeetup,
     AuthServiceTimepad,
+    AuthServiceYandex,
     Auth,
     User
  } = require('./models');
 const AuthRouter = require('./AuthRouter');
 
-const FakeDevAuthService = 'dev';
-
 class AuthService
 {
     /**
      * @param {repository.Repository} repo
-     * @param {bool} isDevEnv - true if running in developer environment
      */
-    constructor(repo, isDevEnv)
+    constructor(repo)
     {
         this._repo = repo;
-        this._isDevEnv = isDevEnv;
     }
 
     /**
@@ -32,12 +30,7 @@ class AuthService
      */
     serviceIds()
     {
-        const ids = [AuthServiceVK, AuthServiceTimepad, AuthServiceYandex];
-        if (this._isDevEnv)
-        {
-            ids.push(FakeDevAuthService);
-        }
-        return ids;
+        return [AuthServiceVK, AuthServiceMeetup, AuthServiceTimepad, AuthServiceYandex];
     }
 
     /**
@@ -46,33 +39,37 @@ class AuthService
      */
     use(router)
     {
-        function use(serviceId, strategy) {
-            passport.use(serviceId, strategy, (accessToken, refreshToken, profile, done) => {
-                this._verify(profile, done);
-            });
-        }
-
         let vkAppInfo = config.vkAppInfo();
         if (vkAppInfo)
         {
-            use(AuthServiceVK, new AuthStrategyVK({
-                clientID: vkAppInfo.clientId,
+            passport.use(AuthServiceVK, new AuthStrategyVK({
+                clientID: vkAppInfo.clientID,
                 clientSecret: vkAppInfo.clientSecret,
-                callbackURL: router.callbackURL(serviceId),
+                callbackURL: router.callbackURL(AuthServiceVK),
+            }, (accessToken, refreshToken, profile, done) => {
+                this._verify(profile, done);
             }));
         }
-        if (this._isDevEnv)
+        let meetupAppInfo = config.meetupAppInfo();
+        if (meetupAppInfo)
         {
-            use(FakeDevAuthService, new AuthStrategyDev({
-                name: 'vk',
-                user: new Auth({
-                    id: 0,
-                    createdAt: new Date(),
-                    serviceId: FakeDevAuthService,
-                    profileId: "0",
-                    name: 'Site Developer',
-                    photoUrl: 'https://www.gravatar.com/avatar/205e460b479e2c5a48aec0f710c02d50',
-                })
+            passport.use(AuthServiceMeetup, new AuthStrategyMeetup({
+                consumerKey: meetupAppInfo.consumerKey,
+                consumerSecret: meetupAppInfo.consumerSecret,
+                callbackURL: router.callbackURL(AuthServiceMeetup),
+            }, (accessToken, refreshToken, profile, done) => {
+                this._verify(profile, done);
+            }));
+        }
+        let yandexAppInfo = config.yandexAppInfo();
+        if (yandexAppInfo)
+        {
+            passport.use(AuthServiceYandex, new AuthStrategyYandex({
+                clientID: yandexAppInfo.clientID,
+                clientSecret: yandexAppInfo.clientSecret,
+                callbackURL: router.callbackURL(AuthServiceYandex),
+            }, (accessToken, refreshToken, profile, done) => {
+                this._verify(profile, done);
             }));
         }
     }
@@ -108,19 +105,8 @@ class AuthService
                 user = new User({
                     id: generateId(),
                     createdAt: new Date(),
+                    primaryAuthId: auth.id,
                 });
-                switch (serviceId)
-                {
-                case AuthServiceVK:
-                    user.vkAuth = auth;
-                    break;
-                case AuthServiceTimepad:
-                    user.timepadAuth = auth;
-                    break;
-                case AuthServiceYandex:
-                    user.yandexAuth = auth;
-                    break;
-                }
                 await this.repo.storeUser(user);
             }
             done(null, user);

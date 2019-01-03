@@ -51,7 +51,7 @@ app.use(passport.session());
 const dbClient = new db.Client(config.dsn());
 
 const authRouter = new AuthRouter('/login');
-const authService = new AuthService(dbClient.repository(), isDevEnv);
+const authService = new AuthService(dbClient.repository());
 authService.use(authRouter);
 app.use('/login', authRouter.makeRouter(authService.serviceIds(), '/', '/login'));
 
@@ -95,10 +95,7 @@ router.get('/login', function(req, res) {
         }
     }
     res.render('login', {
-        page: page,
-        env: {
-            isDevEnv: isDevEnv
-        }
+        page: page
     });
 });
 
@@ -126,7 +123,6 @@ router.get('/members', function(req, res) {
 
 router.use(serveStatic(staticDir));
 
-const port = config.port();
 const server = new Server(app);
 server.preListenAction(async () => {
     await dbClient.connect();
@@ -134,4 +130,4 @@ server.preListenAction(async () => {
 server.postListenAction(async () => {
     await dbClient.end();
 });
-server.listen(port);
+server.runSync(config.portHttp(), config.portHttps(), config.sslData());

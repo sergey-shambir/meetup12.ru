@@ -1,8 +1,9 @@
 const uuidv1 = require('uuid/v1');
 
-const AuthServiceVK = "vk";
-const AuthServiceTimepad = "timepad";
-const AuthServiceYandex = "yandex";
+const AuthServiceVK = 'vk';
+const AuthServiceMeetup = 'meetup';
+const AuthServiceTimepad = 'timepad';
+const AuthServiceYandex = 'yandex';
 
 function generateId()
 {
@@ -45,32 +46,23 @@ class User
     /**
      * @param {{
      *  id: string,
-     *  createdAt: date
+     *  createdAt: Date,
+     *  primaryAuthId: string
      * }}
      */
-    constructor({id, createdAt})
+    constructor({id, createdAt, primaryAuthId})
     {
         this.id = id;
         /**
          * @property {Date}
          */
         this.created = createdAt;
-        /**
-         * @property {Auth}
-         */
-        this.vkAuth = null;
-        /**
-         * @property {Auth}
-         */
-        this.timepadAuth = null;
-        /**
-         * @property {Auth}
-         */
-        this.yandexAuth = null;
+        this.primaryAuthId = primaryAuthId;
     }
 }
 
 module.exports.AuthServiceVK = AuthServiceVK;
+module.exports.AuthServiceMeetup = AuthServiceMeetup;
 module.exports.AuthServiceTimepad = AuthServiceTimepad;
 module.exports.AuthServiceYandex = AuthServiceYandex;
 module.exports.generateId = generateId;
