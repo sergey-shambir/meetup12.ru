@@ -18,7 +18,7 @@ function logResponse(req, res, next)
     const start = performance.now();
     res.on('finish', () => {
         const end = performance.now();
-        const isError = (res.statusMessage >= 400);
+        const isError = (res.statusCode >= 400);
         logger.log(
             isError ? 'error' : 'info',
             isError ? 'request failed' : 'request succeed',
