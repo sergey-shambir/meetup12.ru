@@ -16,16 +16,21 @@ function logResponse(req, res, next)
 {
     const url = req.url;
     const start = performance.now();
+    const ip = req.ip;
+    const referer = req.headers.referer;
+
     res.on('finish', () => {
         const end = performance.now();
-        const isError = (res.statusCode >= 400);
+        const hasError = (res.statusCode >= 400);
         logger.log(
-            isError ? 'error' : 'info',
-            isError ? 'request failed' : 'request succeed',
+            hasError ? 'error' : 'info',
+            hasError ? 'request failed' : 'request succeed',
             {
                 url: url,
                 status: res.statusCode,
                 duration: (end - start).toFixed(0) + 'ms',
+                ip: ip,
+                referer: referer
             }
         );
     });
