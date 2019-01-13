@@ -1,5 +1,4 @@
 const passport = require('passport');
-const config = require('../core/config');
 const express = require('express');
 
 class AuthRouter
@@ -14,7 +13,6 @@ class AuthRouter
             throw new Error(`invalid route: ${routePrefix}`);
         }
         this._routePrefix = routePrefix;
-        this._host = config.siteHost();
     }
 
     get routePrefix()
@@ -28,7 +26,7 @@ class AuthRouter
     callbackURL(serviceId)
     {
         const route = this._callbackRoute(serviceId);
-        return `${this._host}${this._routePrefix}${route}`;
+        return `${this._routePrefix}${route}`;
     }
 
     /**
