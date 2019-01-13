@@ -38,8 +38,6 @@ app.use(cookieSession({
 
 app.use(logging.logResponse);
 
-console.log("app.get('env')", app.get('env'));
-
 if (isDevEnv)
 {
     app.use(errorhandler());
