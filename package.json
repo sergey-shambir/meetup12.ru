@@ -4,9 +4,12 @@
   "description": "meetup12.ru site",
   "main": "index.js",
   "scripts": {
-    "test": "test",
-    "start": "node index.js",
-    "create-migration": "node scripts/create-migration.js create"
+    "start": "node src/index.js",
+    "dist": "gulp --gulpfile src/gulpfile.js dist",
+    "release": "gulp --gulpfile src/gulpfile.js release",
+    "prerelease": "gulp --gulpfile src/gulpfile.js prerelease",
+    "create-migration": "scripts/create-migration.js create",
+    "compose": "bin/run-compose"
   },
   "repository": {
     "type": "git",
@@ -41,5 +44,9 @@
     "uuid": "^3.3.2",
     "wait-for-promise": "^1.0.0",
     "winston": "^3.1.0"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "gulp4-run-sequence": "^0.2.1"
   }
 }

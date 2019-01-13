@@ -3,8 +3,8 @@ const AuthStrategyVK = require('passport-vkontakte').Strategy;
 const AuthStrategyMeetup = require('passport-meetup').Strategy;
 const AuthStrategyYandex = require('passport-yandex').Strategy;
 
-const config = require('./config');
-const repository = require('./repository');
+const config = require('../core/config');
+const repository = require('../db/repository');
 const {
     AuthServiceVK,
     AuthServiceMeetup,
@@ -12,7 +12,7 @@ const {
     AuthServiceYandex,
     Auth,
     User
- } = require('./models');
+ } = require('../db/models');
 const AuthRouter = require('./AuthRouter');
 
 class AuthService

@@ -9,12 +9,12 @@ const passport = require('passport');
 const errorhandler = require('errorhandler');
 const expressPromiseRouter = require('express-promise-router');
 
-const db = require('./src/db');
-const config = require('./src/config');
-const logging = require('./src/logging');
-const { Server } = require('./src/server');
-const AuthService = require('./src/AuthService');
-const AuthRouter = require('./src/AuthRouter');
+const db = require('./db/db');
+const config = require('./core/config');
+const logging = require('./core/logging');
+const { Server } = require('./core/server');
+const AuthService = require('./auth/AuthService');
+const AuthRouter = require('./auth/AuthRouter');
 
 const staticDir = path.join(__dirname, 'www');
 const viewsDir = path.join(__dirname, 'views');

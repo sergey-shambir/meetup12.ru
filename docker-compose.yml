@@ -2,32 +2,34 @@ version: '3'
 
 services:
   meetup12ru-db:
-    image: postgres:11-alpine
+    image: "postgres:11-alpine"
     container_name: meetup12ru-db
     volumes:
-      - "$PWD/data/postgres_files:/var/lib/postgresql/data"
+      - "$PWD/var/postgres_files:/var/lib/postgresql/data"
       - "/etc/passwd:/etc/passwd:ro"
       - "/etc/group:/etc/group:ro"
-      - "$PWD/config/:/app/config:ro"
-    user: "$USER_WITH_GROUP"
+    user: "$USER_ID"
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: meetup12ru
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: meetup12ru
 
   meetup12ru:
-    image: sshambir/meetup12ru:master
+    image: "sshambir/meetup12ru:master"
     container_name: meetup12ru
     volumes:
-        - "$PWD:/app"
-    user: "$USER_WITH_GROUP"
+      - "/etc/passwd:/etc/passwd:ro"
+      - "/etc/group:/etc/group:ro"
+    user: "$USER_ID"
     ports:
       - "80:3000"
     depends_on:
       - meetup12ru-db
     environment:
-      NODE_ENV: dev
-      SITE_PORT_HTTP: 3000
+      NODE_ENV: "dev"
+      SITE_PORT_HTTP: "3000"
       SITE_DSN: "postgres://meetup12ru:1234@meetup12ru-db/meetup12ru"
       SITE_SESSION_SECRET: "amqg7i0Q"
       SITE_CONFIG: "/app/config/meetup12ru.json"

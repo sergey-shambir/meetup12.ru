@@ -1,7 +1,7 @@
 const pg = require('pg');
 const path = require('path');
 const { Repository } = require('./repository');
-const { logValues } = require('./logging');
+const { logValues } = require('../core/logging');
 
 const migrateDatabase = require('sql-migrations').migrate;
 const PostgresAdapter = require('sql-migrations/adapters/pg');
@@ -45,7 +45,7 @@ class Client
     {
         // setup database before first use
         const config = {
-            migrationsDir: path.resolve(__dirname, '..', 'data/migrations'),
+            migrationsDir: path.resolve(__dirname, '..', 'migrations'),
             adapter: 'pg',
             host: this._dsn.host,
             db: this._dsn.database,

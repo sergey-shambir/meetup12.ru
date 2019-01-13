@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+set -e
+
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+PROJECT_DIR=$(dirname "$SCRIPT_DIR")
+
+export USER_ID=$(id -u)
+cd "$PROJECT_DIR"
+mkdir -p -m 777 var/postgres_files
+docker-compose "$@"

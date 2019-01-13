@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const path = require('path');
 const sqlmigrations = require('sql-migrations');
 
@@ -8,6 +10,6 @@ if (process.argv[2] != 'create' || !process.argv[3])
 }
 
 sqlmigrations.run({
-    migrationsDir: path.resolve(__dirname, '..', 'data/migrations'),
+    migrationsDir: path.join(__dirname, '..', 'src/migrations'),
     adapter: 'pg'
 });
