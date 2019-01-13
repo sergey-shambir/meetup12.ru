@@ -18,6 +18,7 @@ function logResponse(req, res, next)
     const start = performance.now();
     const ip = req.ip;
     const referer = req.headers.referer;
+    const time = new Date().toUTCString();
 
     res.on('finish', () => {
         const end = performance.now();
@@ -30,7 +31,8 @@ function logResponse(req, res, next)
                 status: res.statusCode,
                 duration: (end - start).toFixed(0) + 'ms',
                 ip: ip,
-                referer: referer
+                referer: referer,
+                time: time
             }
         );
     });
