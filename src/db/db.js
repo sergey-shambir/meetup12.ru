@@ -53,17 +53,14 @@ class Client
             password: this._dsn.password,
         };
         const logger = {
-            log: () => {},
+            log: (args) => { logValues('info', ...args) },
             error: (...args) => { logValues('error', ...args) },
         };
         const adapter = new PostgresAdapter(config, logger);
         await migrateDatabase(config, adapter);
 
-        console.log("this._dsnString", this._dsnString)
         this._client = new pg.Client(this._dsnString);
-        console.log("finished new pg.Client")
         await this._client.connect();
-        console.log("finished .connect()")
     }
 
     /**
