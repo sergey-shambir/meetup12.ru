@@ -1,2 +1,5 @@
-DROP TABLE user;
-DROP TABLE auth;
+DROP TABLE "auth_ref";
+DROP TABLE "auth";
+DROP TABLE "user";
+DROP DOMAIN UUID;
+DROP TYPE AuthServiceID;

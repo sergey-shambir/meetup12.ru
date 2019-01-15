@@ -1,9 +1,9 @@
 const uuidv1 = require('uuid/v1');
 
-const AuthServiceVK = 'vk';
-const AuthServiceMeetup = 'meetup';
-const AuthServiceTimepad = 'timepad';
-const AuthServiceYandex = 'yandex';
+const ServiceVK = 'vk';
+const ServiceMeetup = 'meetup';
+const ServiceTimepad = 'timepad';
+const ServiceYandex = 'yandex';
 
 function generateId()
 {
@@ -30,9 +30,6 @@ class Auth
     constructor({id, createdAt, serviceId, profileId, name, photoUrl})
     {
         this.id = id;
-        /**
-         * @property {Date}
-         */
         this.createdAt = createdAt;
         this.serviceId = serviceId;
         this.profileId = profileId;
@@ -53,18 +50,43 @@ class User
     constructor({id, createdAt, primaryAuthId})
     {
         this.id = id;
-        /**
-         * @property {Date}
-         */
-        this.created = createdAt;
+        this.createdAt = createdAt;
         this.primaryAuthId = primaryAuthId;
     }
 }
 
-module.exports.AuthServiceVK = AuthServiceVK;
-module.exports.AuthServiceMeetup = AuthServiceMeetup;
-module.exports.AuthServiceTimepad = AuthServiceTimepad;
-module.exports.AuthServiceYandex = AuthServiceYandex;
+class Event
+{
+    /**
+     * @param {{
+     *  id: string,
+     *  createdAt: Date,
+     *  serviceId: string,
+     *  eventId: string,
+     *  title: string,
+     *  description: string,
+     *  startDate: Date,
+     *  address: string,
+     * }}
+     */
+    constructor({id, createdAt, serviceId, eventId, title, description, startDate, address})
+    {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.serviceId = serviceId;
+        this.eventId = eventId;
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.address = address;
+    }
+}
+
+module.exports.ServiceVK = ServiceVK;
+module.exports.ServiceMeetup = ServiceMeetup;
+module.exports.ServiceTimepad = ServiceTimepad;
+module.exports.ServiceYandex = ServiceYandex;
 module.exports.generateId = generateId;
 module.exports.Auth = Auth;
 module.exports.User = User;
+module.exports.Event = Event;

@@ -48,7 +48,7 @@ class Config
         }
         return {
             key: fs.readFileSync(path.join(configDir, 'privkey.pem')),
-            cert: fs.readFileSync(path.join(configDir, 'fullchain.pem')),
+            cert: fs.readFileSync(path.join(configDir, 'cert.pem')),
             ca: fs.readFileSync(path.join(configDir, 'chain.pem')),
         };
     }

@@ -4,25 +4,25 @@ const AuthStrategyMeetup = require('passport-meetup').Strategy;
 const AuthStrategyYandex = require('passport-yandex').Strategy;
 
 const config = require('../core/config');
-const repository = require('../db/repository');
+const Repository = require('../db/Repository');
 const {
-    AuthServiceVK,
-    AuthServiceMeetup,
-    AuthServiceTimepad,
-    AuthServiceYandex,
+    ServiceVK,
+    ServiceMeetup,
+    ServiceTimepad,
+    ServiceYandex,
     Auth,
     User
- } = require('../db/models');
+ } = require('../core/models');
 const AuthRouter = require('./AuthRouter');
 
 class AuthService
 {
     /**
-     * @param {repository.Repository} repo
+     * @param {Repository} repo
      */
     constructor(repo)
     {
-        this._repo = repo;
+        this.repo = repo;
     }
 
     /**
@@ -30,7 +30,7 @@ class AuthService
      */
     serviceIds()
     {
-        return [AuthServiceVK, AuthServiceMeetup, AuthServiceTimepad, AuthServiceYandex];
+        return [ServiceVK, ServiceMeetup, ServiceTimepad, ServiceYandex];
     }
 
     /**
@@ -42,10 +42,10 @@ class AuthService
         let vkAppInfo = config.vkAppInfo();
         if (vkAppInfo)
         {
-            passport.use(AuthServiceVK, new AuthStrategyVK({
+            passport.use(ServiceVK, new AuthStrategyVK({
                 clientID: vkAppInfo.clientID,
                 clientSecret: vkAppInfo.clientSecret,
-                callbackURL: router.callbackURL(AuthServiceVK),
+                callbackURL: router.callbackURL(ServiceVK),
             }, (accessToken, refreshToken, profile, done) => {
                 this._verify(profile, done);
             }));
@@ -53,10 +53,10 @@ class AuthService
         let meetupAppInfo = config.meetupAppInfo();
         if (meetupAppInfo)
         {
-            passport.use(AuthServiceMeetup, new AuthStrategyMeetup({
+            passport.use(ServiceMeetup, new AuthStrategyMeetup({
                 consumerKey: meetupAppInfo.consumerKey,
                 consumerSecret: meetupAppInfo.consumerSecret,
-                callbackURL: router.callbackURL(AuthServiceMeetup),
+                callbackURL: router.callbackURL(ServiceMeetup),
             }, (accessToken, refreshToken, profile, done) => {
                 this._verify(profile, done);
             }));
@@ -64,10 +64,10 @@ class AuthService
         let yandexAppInfo = config.yandexAppInfo();
         if (yandexAppInfo)
         {
-            passport.use(AuthServiceYandex, new AuthStrategyYandex({
+            passport.use(ServiceYandex, new AuthStrategyYandex({
                 clientID: yandexAppInfo.clientID,
                 clientSecret: yandexAppInfo.clientSecret,
-                callbackURL: router.callbackURL(AuthServiceYandex),
+                callbackURL: router.callbackURL(ServiceYandex),
             }, (accessToken, refreshToken, profile, done) => {
                 this._verify(profile, done);
             }));

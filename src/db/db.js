@@ -1,6 +1,6 @@
 const pg = require('pg');
 const path = require('path');
-const { Repository } = require('./repository');
+const Repository = require('./Repository');
 const { logValues } = require('../core/logging');
 
 const migrateDatabase = require('sql-migrations').migrate;

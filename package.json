@@ -8,7 +8,7 @@
     "dist": "gulp --gulpfile src/gulpfile.js dist",
     "release": "gulp --gulpfile src/gulpfile.js release",
     "prerelease": "gulp --gulpfile src/gulpfile.js prerelease",
-    "create-migration": "scripts/create-migration.js create",
+    "create-migration": "bin/create-migration create",
     "compose": "bin/run-compose"
   },
   "repository": {

@@ -16,6 +16,13 @@ services:
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: meetup12ru
 
+  meetup12ru-test-db:
+    image: "postgres:11-alpine"
+    container_name: meetup12ru-test-db
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: meetup12ru
+
   meetup12ru:
     image: "sshambir/meetup12ru:master"
     container_name: meetup12ru
