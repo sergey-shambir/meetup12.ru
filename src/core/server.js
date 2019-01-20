@@ -46,7 +46,7 @@ class Server
         let serverHttps = null;
         if (httpsPort !== null && sslData !== null)
         {
-            serverHttps = https.createServer(this._router).listen(httpsPort, () => {
+            serverHttps = https.createServer(sslData, this._router).listen(httpsPort, () => {
                 logging.logger.info(`started listening https requests on ${httpsPort}`);
             });
         }

@@ -47,9 +47,9 @@ class Config
             return null;
         }
         return {
-            key: fs.readFileSync(path.join(configDir, 'privkey.pem')),
-            cert: fs.readFileSync(path.join(configDir, 'cert.pem')),
-            ca: fs.readFileSync(path.join(configDir, 'chain.pem')),
+            key: fs.readFileSync(path.join(configDir, 'privkey.pem'), 'utf8'),
+            cert: fs.readFileSync(path.join(configDir, 'cert.pem'), 'utf8'),
+            ca: fs.readFileSync(path.join(configDir, 'chain.pem'), 'utf8'),
         };
     }
 
