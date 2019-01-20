@@ -7,12 +7,11 @@ const ServiceYandex = 'yandex';
 
 function generateId()
 {
-    const id = uuidv1().replace('-', '');
-    if (id.length != 32)
-    {
-        throw new Error('unexpected generated id: ' + id);
-    }
-    return id;
+    /**
+     * uuidv1 returns UUID which depends on current time, so it's
+     * the best choice to maintain database without conflicts with old data
+     */
+    return uuidv1();
 }
 
 class Auth
@@ -55,7 +54,7 @@ class User
     }
 }
 
-class Event
+class Meetup
 {
     /**
      * @param {{
@@ -89,4 +88,4 @@ module.exports.ServiceYandex = ServiceYandex;
 module.exports.generateId = generateId;
 module.exports.Auth = Auth;
 module.exports.User = User;
-module.exports.Event = Event;
+module.exports.Meetup = Meetup;

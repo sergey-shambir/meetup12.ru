@@ -9,7 +9,8 @@
     "release": "gulp --gulpfile src/gulpfile.js release",
     "prerelease": "gulp --gulpfile src/gulpfile.js prerelease",
     "create-migration": "bin/create-migration create",
-    "compose": "bin/run-compose"
+    "compose": "bin/run-compose",
+    "test-db": "mocha test/db"
   },
   "repository": {
     "type": "git",
@@ -46,6 +47,7 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "gulp": "^4.0.0",
     "gulp4-run-sequence": "^0.2.1"
   }

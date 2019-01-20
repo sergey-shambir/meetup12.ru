@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-const { Auth, User } = require('../core/models');
+const { Auth, User, Meetup } = require('../core/models');
 
 class Repository
 {
@@ -36,8 +36,11 @@ class Repository
      */
     async getUserAuths(userId)
     {
-        // FIXME: use JOIN
-        const res = await client.query('SELECT "auth"."id", "auth"."created", "auth"."service_id", "auth"."profile_id", "auth"."name", "auth"."photo_url" FROM "auth" INNER JOIN "auth_ref" ON "auth"."id"="auth_ref"."auth_id" WHERE "auth_ref"."user_id"=$1', [userId]);
+        const res = await this.client.query(
+            'SELECT "auth"."id", "auth"."created", "auth"."service_id", "auth"."profile_id", "auth"."name", "auth"."photo_url"'
+            + ' FROM "auth" INNER JOIN "auth_ref" ON "auth"."id"="auth_ref"."auth_id"'
+            + ' WHERE "auth_ref"."user_id"=$1',
+            [userId]);
         const auths = [];
         for (let row of res.rows)
         {
@@ -58,8 +61,13 @@ class Repository
      */
     async storeAuth(auth)
     {
-        // FIXME: use ON CONFLICT UPDATE
-        return await client.query('INSERT INTO "auth"("id", "service_id", "profile_id", "name", "photo_url") VALUES ($1, $2, $3, $4, $5)', [auth.id, auth.serviceId, auth.profileId, auth.name, auth.photoUrl]);
+        await this.client.query(
+            'INSERT INTO "auth"("id", "service_id", "profile_id", "name", "photo_url")'
+            + ' VALUES ($1, $2, $3, $4, $5)'
+            + ' ON CONFLICT (id) DO UPDATE'
+            + ' SET "id"="excluded"."id", "service_id"="excluded"."service_id"'
+            + ', "profile_id"="excluded"."profile_id", "name"="excluded"."name", "photo_url"="excluded"."photo_url"',
+            [auth.id, auth.serviceId, auth.profileId, auth.name, auth.photoUrl]);
     }
 
     /**
@@ -68,7 +76,10 @@ class Repository
      */
     async findUserWithAuth(auth)
     {
-        const res = await client.query('SELECT "user"."id", "user"."created", "user"."primary_auth_id" FROM "user" INNER JOIN "auth_ref" ON "user.id"="auth_ref"."user_id" WHERE "auth_ref"."auth_id"=$1', [auth.id]);
+        const res = await this.client.query(
+            'SELECT "user"."id", "user"."created", "user"."primary_auth_id" FROM "user"'
+            + ' INNER JOIN "auth_ref" ON "user.id"="auth_ref"."user_id" WHERE "auth_ref"."auth_id"=$1',
+            [auth.id]);
         const row = res.rows[0];
         return new User({
             id: row.id,
@@ -78,12 +89,16 @@ class Repository
     }
 
     /**
-     * @param {User} user 
+     * @param {User} user
      */
     async storeUser(user)
     {
-        // FIXME: use ON CONFLICT UPDATE
-        return await client.query('INSERT INTO "user"("id", "primary_auth_id") VALUES ($1, $3)', [user.id, user.primaryAuthId]);
+        await this.client.query(
+            'INSERT INTO "user"("id", "primary_auth_id")'
+            + ' VALUES ($1, $3)'
+            + ' ON CONFLICT (id) DO UPDATE'
+            + ' SET "primary_auth_id"="excluded"."primary_auth_id"',
+            [user.id, user.primaryAuthId]);
     }
 
     /**
@@ -91,22 +106,67 @@ class Repository
      *  beforeDate: ?Date,
      *  afterDate: ?Date
      * }}
+     * @returns {!Array<Meetup>}
      */
-    async findEvents({beforeDate, afterDate})
+    async findMeetups({afterDate, beforeDate} = {})
     {
-        // FIXME: finish me
-        let query = 'SELECT "id", "created", "service_id", "event_id", "title", "description", "start_date", "address" FROM "event"';
-        function addCondition() {
-            
+        let query = 'SELECT "id", "created", "service_id", "event_id", "title", "description", "start_date", "address" FROM "meetup"';
+        const conditions = [];
+        const values = [];
+        if (afterDate)
+        {
+            conditions.push('"start_date">?');
+            values.push(afterDate);
         }
-
         if (beforeDate)
         {
-            query += ' WHERE before';
+            conditions.push('"start_date"<?');
+            values.push(beforeDate);
         }
+        if (conditions.length > 0)
+        {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+        const res = await this.client.query(query, values);
+        const meetups = [];
+        for (let row of res.rows)
+        {
+            meetups.push(new Meetup({
+                id: row.id,
+                createdAt: row.created,
+                serviceId: row.service_id,
+                eventId: row.event_id,
+                title: row.title,
+                description: row.description,
+                startDate: row.start_date,
+                address: row.address,
+            }));
+        }
+        return meetups;
     }
 
-    // TODO: async storeEvent(event)
+    /**
+     * @param {!Meetup} meetup
+     */
+    async storeMeetup(meetup)
+    {
+        await this.client.query(
+            'INSERT INTO "meetup"("id", "created", "service_id", "event_id", "title", "description", "start_date", "address")'
+            + ' VALUES ($1, $2, $3, $4, $5, $6, $7, $8)'
+            + ' ON CONFLICT (id) DO UPDATE'
+            + ' SET "created"="excluded"."created", "service_id"="excluded"."service_id", "event_id"="excluded"."event_id"'
+            + ', "title"="excluded"."title", "description"="excluded"."description", "start_date"="excluded"."start_date"'
+            + ', "address"="excluded"."address"',
+            [meetup.id, meetup.createdAt, meetup.serviceId, meetup.eventId, meetup.title, meetup.description, meetup.startDate, meetup.address]);
+    }
+
+    /**
+     * @param {string} id
+     */
+    async deleteMeetup(id)
+    {
+        await this.client.query('DELETE FROM "meetup" WHERE "id" = $1', [id]);
+    }
 }
 
 module.exports = Repository;

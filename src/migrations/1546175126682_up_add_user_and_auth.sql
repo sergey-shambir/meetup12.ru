@@ -1,5 +1,4 @@
 CREATE TYPE AuthServiceID AS ENUM ('vk', 'timepad', 'meetup', 'yandex');
-CREATE DOMAIN UUID AS CHAR(32);
 
 CREATE TABLE "auth" (
     "id"         UUID PRIMARY KEY,

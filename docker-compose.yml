@@ -19,7 +19,10 @@ services:
   meetup12ru-test-db:
     image: "postgres:11-alpine"
     container_name: meetup12ru-test-db
+    ports:
+      - "15432:5432"
     environment:
+      POSTGRES_USER: meetup12ru
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: meetup12ru
 

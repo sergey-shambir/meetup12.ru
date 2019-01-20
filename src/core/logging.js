@@ -47,10 +47,10 @@ function logResponse(req, res, next)
  */
 function logValues(level, ...values)
 {
-    const argsStr = args.map((arg) => { return JSON.stringify(arg); }).join(' ');
-    this.logger.log(
+    const valuesStr = values.map((arg) => { return JSON.stringify(arg); }).join(' ');
+    logger.log(
         level,
-        argsStr
+        valuesStr
     );
 }
 

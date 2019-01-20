@@ -1,7 +1,7 @@
 const pg = require('pg');
 const path = require('path');
 const Repository = require('./Repository');
-const { logValues } = require('../core/logging');
+const { logger } = require('../core/logging');
 
 const migrateDatabase = require('sql-migrations').migrate;
 const PostgresAdapter = require('sql-migrations/adapters/pg');
@@ -13,7 +13,7 @@ const PostgresAdapter = require('sql-migrations/adapters/pg');
  */
 function parsePostgresDSN(dsn)
 {
-    const re = /^postgres:\/\/(\w+):(\w+)@([\w+\-]+)\/(\w+)$/;
+    const re = /^postgres:\/\/(\w+):(\w+)@([\w+\-]+):?(\d+)?\/(\w+)$/;
     const m = dsn.match(re);
     if (!m)
     {
@@ -23,7 +23,8 @@ function parsePostgresDSN(dsn)
         username: m[1],
         password: m[2],
         host: m[3],
-        database: m[4],
+        port: m[4],
+        database: m[5],
     };
 }
 
@@ -39,7 +40,7 @@ class Client
     }
 
     /**
-     * @returns Promise<void>
+     * @returns {Promise<void>}
      */
     async connect()
     {
@@ -48,15 +49,21 @@ class Client
             migrationsDir: path.resolve(__dirname, '..', 'migrations'),
             adapter: 'pg',
             host: this._dsn.host,
+            port: this._dsn.port,
             db: this._dsn.database,
             user: this._dsn.username,
             password: this._dsn.password,
         };
-        const logger = {
-            log: (args) => { logValues('info', ...args) },
+        const migrationLogger = {
+            log: (message) => {
+                if (typeof(message) == 'string' && !message.startsWith('='))
+                {
+                    logger.log('info', message);
+                }
+            },
             error: (...args) => { logValues('error', ...args) },
         };
-        const adapter = new PostgresAdapter(config, logger);
+        const adapter = new PostgresAdapter(config, migrationLogger);
         await migrateDatabase(config, adapter);
 
         this._client = new pg.Client(this._dsnString);
@@ -64,7 +71,7 @@ class Client
     }
 
     /**
-     * @returns Promise<void>
+     * @returns {Promise<void>}
      */
     end()
     {
@@ -72,7 +79,7 @@ class Client
     }
 
     /**
-     * @returns Repository
+     * @returns {Repository}
      */
     repository()
     {
