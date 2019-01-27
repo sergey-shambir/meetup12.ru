@@ -18,7 +18,7 @@ class Repository
      */
     async findAuth(serviceId, profileId)
     {
-        const res = await client.query('SELECT id, created, name, photo_url FROM auth WHERE service_id=$1 profile_id=$2', [serviceId, profileId]);
+        const res = await this.client.query('SELECT id, created, name, photo_url FROM auth WHERE service_id=$1 AND profile_id=$2', [serviceId, profileId]);
         const row = res.rows[0];
         return new Auth({
             id: row.id,
@@ -28,6 +28,28 @@ class Repository
             name: row.name,
             photoUrl: row.photo_url
         });
+    }
+
+    /**
+     * @param {Auth} auth
+     */
+    async storeAuth(auth)
+    {
+        await this.client.query(
+            'INSERT INTO "auth"("id", "created", "service_id", "profile_id", "name", "photo_url")'
+            + ' VALUES ($1, $2, $3, $4, $5, $6)'
+            + ' ON CONFLICT (id) DO UPDATE'
+            + ' SET "id"="excluded"."id", "created"="excluded"."created", "service_id"="excluded"."service_id"'
+            + ', "profile_id"="excluded"."profile_id", "name"="excluded"."name", "photo_url"="excluded"."photo_url"',
+            [auth.id, auth.createdAt, auth.serviceId, auth.profileId, auth.name, auth.photoUrl]);
+    }
+
+    /**
+     * @param {string} id
+     */
+    async deleteAuth(id)
+    {
+        await this.client.query('DELETE FROM "auth" WHERE "id" = $1', [id]);
     }
 
     /**
@@ -57,17 +79,15 @@ class Repository
     }
 
     /**
-     * @param {Auth} auth
+     * @param {string} userId - User.id
+     * @param {string} authId - Auth.id
      */
-    async storeAuth(auth)
+    async addUserAuth(userId, authId)
     {
         await this.client.query(
-            'INSERT INTO "auth"("id", "service_id", "profile_id", "name", "photo_url")'
-            + ' VALUES ($1, $2, $3, $4, $5)'
-            + ' ON CONFLICT (id) DO UPDATE'
-            + ' SET "id"="excluded"."id", "service_id"="excluded"."service_id"'
-            + ', "profile_id"="excluded"."profile_id", "name"="excluded"."name", "photo_url"="excluded"."photo_url"',
-            [auth.id, auth.serviceId, auth.profileId, auth.name, auth.photoUrl]);
+            'INSERT INTO "auth_ref"("user_id", "auth_id")'
+            + ' VALUES ($1, $2)',
+            [userId, authId]);
     }
 
     /**

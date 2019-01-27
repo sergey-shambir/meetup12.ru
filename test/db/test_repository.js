@@ -127,3 +127,70 @@ describe('meetup', () => {
         }
     });
 });
+
+describe('auth', () => {
+    it('can be stored and then be found', async () => {
+        const c = await connect();
+        try
+        {
+            const r = await c.repository();
+            const expected = new Auth({
+                id: generateId(),
+                createdAt: new Date("2018-03-25"),
+                serviceId: ServiceVK,
+                profileId: "94712472147",
+                name: "Vasyan",
+                photoUrl: "http://vk.com/photo124824742312",
+            });
+            await r.storeAuth(expected);
+            try
+            {
+                const actual = await r.findAuth(ServiceVK, "94712472147");
+                assert.deepEqual(expected, actual);
+            }
+            finally
+            {
+                await r.deleteAuth(expected.id);
+            }
+        }
+        finally
+        {
+            c.end();
+        }
+    });
+
+    it('can be updated', async () => {
+        const c = await connect();
+        try
+        {
+            const r = await c.repository();
+            const expected = new Auth({
+                id: generateId(),
+                createdAt: new Date("2018-03-25"),
+                serviceId: ServiceVK,
+                profileId: "94712472147",
+                name: "Vasyan",
+                photoUrl: "http://vk.com/photo124824742312",
+            });
+            await r.storeAuth(expected);
+            try
+            {
+                expected.createdAt = new Date("2017-03-25");
+                expected.name = "Petr";
+                expected.photoUrl = "http:/example.com/pic.png";
+                await r.storeAuth(expected);
+
+                const actual = await r.findAuth(ServiceVK, "94712472147");
+                assert.deepEqual(expected, actual);
+            }
+            finally
+            {
+                await r.deleteAuth(expected.id);
+            }
+        }
+        finally
+        {
+            c.end();
+        }
+    });
+});
