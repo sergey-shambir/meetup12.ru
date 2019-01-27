@@ -3,8 +3,13 @@ const path = require('path');
 const Repository = require('./Repository');
 const { logger } = require('../core/logging');
 
-const migrateDatabase = require('sql-migrations').migrate;
+const sql_migrations = require('sql-migrations');
 const PostgresAdapter = require('sql-migrations/adapters/pg');
+
+const migrateDatabase = sql_migrations.migrate;
+sql_migrations.setLogger({
+    log: () => {}
+});
 
 /**
  * Parses string like 'postgres://username:password@host/database'
@@ -42,7 +47,7 @@ class Client
     /**
      * @returns {Promise<void>}
      */
-    async connect()
+    async connect({quiet = false})
     {
         // setup database before first use
         const config = {
@@ -56,9 +61,12 @@ class Client
         };
         const migrationLogger = {
             log: (message) => {
-                if (typeof(message) == 'string' && !message.startsWith('='))
+                if (!quiet)
                 {
-                    logger.log('info', message);
+                    if (typeof(message) == 'string' && !message.startsWith('='))
+                    {
+                        logger.log('info', message);
+                    }
                 }
             },
             error: (...args) => { logValues('error', ...args) },
