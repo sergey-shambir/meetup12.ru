@@ -9,7 +9,7 @@ const passport = require('passport');
 const errorhandler = require('errorhandler');
 const expressPromiseRouter = require('express-promise-router');
 
-const db = require('./db/db');
+const db = require('./db/Client');
 const config = require('./core/config');
 const logging = require('./core/logging');
 const { Server } = require('./core/server');
@@ -123,7 +123,7 @@ router.use(serveStatic(staticDir));
 
 const server = new Server(app);
 server.preListenAction(async () => {
-    await dbClient.connect();
+    await dbClient.initialize();
 });
 server.postListenAction(async () => {
     await dbClient.end();

@@ -4,7 +4,7 @@ const AuthStrategyMeetup = require('passport-meetup').Strategy;
 const AuthStrategyYandex = require('passport-yandex').Strategy;
 
 const config = require('../core/config');
-const Repository = require('../db/Repository');
+const Client = require('../db/Client');
 const {
     ServiceVK,
     ServiceMeetup,
@@ -18,11 +18,11 @@ const AuthRouter = require('./AuthRouter');
 class AuthService
 {
     /**
-     * @param {Repository} repo
+     * @param {Client} client
      */
-    constructor(repo)
+    constructor(client)
     {
-        this.repo = repo;
+        this.client = client;
     }
 
     /**
@@ -82,32 +82,31 @@ class AuthService
     {
         try
         {
+            const repo = await this.client.connect();
             const profileId = profile.id;
             const serviceId = profile.provider;
-    
-            let auth = await this.repo.findAuth(serviceId, profileId);
-            if (auth == null)
-            {
-                auth = new Auth({
-                    id: generateId(),
-                    createdAt: new Date(),
-                    serviceId: serviceId,
-                    profileId: profileId,
-                    name: profile.displayName,
-                    photoUrl: profile.photos[0],
-                });
-                await this.repo.storeAuth(auth);
-            }
-    
-            let user = await this.repo.findUserWithAuth(auth);
+
+            let user = await repo.findUserWithAuth(serviceId, profileId);
             if (!user)
             {
+                const createdAt = new Date();
+                const name = profile.displayName;
+                const photoUrl = profile.photos[0];
                 user = new User({
                     id: generateId(),
-                    createdAt: new Date(),
-                    primaryAuthId: auth.id,
+                    createdAt: createdAt,
+                    name: name,
+                    photoUrl: photoUrl,
                 });
-                await this.repo.storeUser(user);
+                user.authorize(new Auth({
+                    id: generateId(),
+                    createdAt: createdAt,
+                    name: name,
+                    photoUrl: photoUrl,
+                    profileId: profileId,
+                    serviceId: serviceId,
+                }));
+                await repo.storeUser(user);
             }
             done(null, user);
         }

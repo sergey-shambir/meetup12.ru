@@ -43,14 +43,38 @@ class User
      * @param {{
      *  id: string,
      *  createdAt: Date,
-     *  primaryAuthId: string
+     *  name: string,
+     *  photoUrl: string
      * }}
      */
-    constructor({id, createdAt, primaryAuthId})
+    constructor({id, createdAt, name, photoUrl})
     {
         this.id = id;
         this.createdAt = createdAt;
-        this.primaryAuthId = primaryAuthId;
+        this.name = name;
+        this.photoUrl = photoUrl;
+        this.auths = {};
+    }
+
+    /**
+     * @param {Auth} auth
+     */
+    authorize(auth)
+    {
+        if (auth.serviceId in this.auths)
+        {
+            throw new Error("cannot authorize twice on the same service");
+        }
+        this.auths[auth.serviceId] = auth;
+    }
+
+    /**
+     * @param {string} serviceId
+     * @return {?Auth}
+     */
+    getAuthForService(serviceId)
+    {
+        return this.auths[serviceId];
     }
 }
 

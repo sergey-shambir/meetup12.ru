@@ -12,9 +12,9 @@ sql_migrations.setLogger({
 });
 
 /**
- * Parses string like 'postgres://username:password@host/database'
+ * Parses string like 'postgres://user:password@host/database'
  * @param {string} dsn - Postgress Data Source Name string
- * @returns {{ username: string, password: string, host: string, database: string }}
+ * @returns {{ user: string, password: string, host: string, database: string }}
  */
 function parsePostgresDSN(dsn)
 {
@@ -25,7 +25,7 @@ function parsePostgresDSN(dsn)
         throw new Error("invalid postgres DSN: " + JSON.stringify(dsn));
     }
     return {
-        username: m[1],
+        user: m[1],
         password: m[2],
         host: m[3],
         port: m[4],
@@ -36,7 +36,7 @@ function parsePostgresDSN(dsn)
 class Client
 {
     /**
-     * @param {string} dsn - connect string in format 'postgres://username:password@host/database'
+     * @param {string} dsn - connect string in format 'postgres://user:password@host/database'
      */
     constructor(dsnString)
     {
@@ -47,18 +47,15 @@ class Client
     /**
      * @returns {Promise<void>}
      */
-    async connect({quiet = false})
+    async initialize({quiet = false})
     {
         // setup database before first use
-        const config = {
+        const migrationConfig = Object.assign({
             migrationsDir: path.resolve(__dirname, '..', 'migrations'),
             adapter: 'pg',
-            host: this._dsn.host,
-            port: this._dsn.port,
             db: this._dsn.database,
-            user: this._dsn.username,
-            password: this._dsn.password,
-        };
+        }, this._dsn);
+
         const migrationLogger = {
             log: (message) => {
                 if (!quiet)
@@ -71,11 +68,22 @@ class Client
             },
             error: (...args) => { logValues('error', ...args) },
         };
-        const adapter = new PostgresAdapter(config, migrationLogger);
-        await migrateDatabase(config, adapter);
+        const adapter = new PostgresAdapter(migrationConfig, migrationLogger);
+        await migrateDatabase(migrationConfig, adapter);
 
-        this._client = new pg.Client(this._dsnString);
-        await this._client.connect();
+        const poolConfig = Object.assign({
+            connectionTimeoutMillis: 100,
+        }, this._dsn);
+        this.pool = new pg.Pool(poolConfig);
+    }
+
+    /**
+     * @returns {Promise<Repository>}
+     */
+    async connect()
+    {
+        const client = await this.pool.connect();
+        return new Repository(client);
     }
 
     /**
@@ -83,16 +91,8 @@ class Client
      */
     end()
     {
-        return this._client.end();
-    }
-
-    /**
-     * @returns {Repository}
-     */
-    repository()
-    {
-        return new Repository(this._client);
+        return this.pool.end();
     }
 }
 
-module.exports.Client = Client;
+module.exports = Client;

@@ -1,14 +1,14 @@
-const db = require('../../src/db/db');
+const Client = require('../../src/db/Client');
 const { generateId, Auth, User, Meetup, ServiceTimepad, ServiceVK } = require('../../src/core/models');
 const {assert} = require('chai');
 
 /**
- * @returns {db.Client}
+ * @returns {Client}
  */
-async function connect()
+async function initialize()
 {
-    const client = new db.Client('postgres://meetup12ru:1234@localhost:15432/meetup12ru');
-    await client.connect({quiet: true});
+    const client = new Client('postgres://meetup12ru:1234@localhost:15432/meetup12ru');
+    await client.initialize({quiet: true});
     return client;
 }
 
@@ -38,7 +38,7 @@ class DeferContext
 
     defer(cb)
     {
-        this.deferred.push(cb);
+        this.deferred.unshift(cb);
     }
 
     async end()
@@ -53,11 +53,11 @@ class DeferContext
 function wrap(cb)
 {
     return async () => {
-        const dc = new DeferContext();
-        const c = await connect();
+        const c = await initialize();
         try
         {
-            const r = c.repository();
+            const r = await c.connect();
+            const dc = new DeferContext();
             try
             {
                 await cb(r, dc);
@@ -69,7 +69,7 @@ function wrap(cb)
         }
         finally
         {
-            c.end();
+            await c.end();
         }
     };
 }
@@ -139,82 +139,28 @@ describe('meetup', () => {
     }));
 });
 
-describe('auth', () => {
-    it('can be stored and then be found', wrap(async (r, dc) => {
-        const expected = new Auth({
-            id: generateId(),
-            createdAt: new Date("2018-03-25"),
-            serviceId: ServiceVK,
-            profileId: "94712472147",
-            name: "Vasyan",
-            photoUrl: "http://vk.com/photo124824742312",
-        });
-        await r.storeAuth(expected);
-        dc.defer(() => r.deleteAuth(expected.id));
-        const actual = await r.findAuth(ServiceVK, "94712472147");
-        assert.deepEqual(expected, actual);
-    }));
-
-    it('can be updated', wrap(async (r, dc) => {
-        const expected = new Auth({
-            id: generateId(),
-            createdAt: new Date("2018-03-25"),
-            serviceId: ServiceVK,
-            profileId: "94712472147",
-            name: "Vasyan",
-            photoUrl: "http://vk.com/photo124824742312",
-        });
-        await r.storeAuth(expected);
-        dc.defer(() => r.deleteAuth(expected.id));
-
-        expected.createdAt = new Date("2017-03-25");
-        expected.name = "Petr";
-        expected.photoUrl = "http:/example.com/pic.png";
-        await r.storeAuth(expected);
-
-        const actual = await r.findAuth(ServiceVK, "94712472147");
-        assert.deepEqual(expected, actual);
-    }));
-});
-
-/*
 describe('user', () => {
-    it('can be stored and then be found', async () => {
-        const c = await connect();
-        try
-        {
-            const r = await c.repository();
-            const auth = new Auth({
-                id: generateId(),
-                createdAt: new Date("2018-03-25"),
-                serviceId: ServiceVK,
-                profileId: "94712472147",
-                name: "Vasyan",
-                photoUrl: "http://vk.com/photo124824742312",
-            });
-            await r.storeAuth(auth);
+    it('can be stored and then be found', wrap(async (r, dc) => {
+        const profileId = "94712472147";
+        const expected = new User({
+            id: generateId(),
+            createdAt: new Date("2017-01-25"),
+            name: "Vasyanchik",
+            photoUrl: "http://vk.com/photoproto",
+        });
+        expected.authorize({
+            id: generateId(),
+            createdAt: new Date("2018-03-25"),
+            serviceId: ServiceVK,
+            profileId: profileId,
+            name: "Vasyan",
+            photoUrl: "http://vk.com/photoblevota",
+        });
 
-            const expected = new User({
-                id: generateId(),
-                createdAt: new Date("2017-01-25"),
-                primaryAuthId: auth.id,
-            });
-            await r.storeUser(expected);
+        await r.storeUser(expected);
+        dc.defer(() => r.deleteUser(expected));
 
-            try
-            {
-                const actual = await r.findUserWithAuth();
-                assert.deepEqual(expected, actual);
-            }
-            finally
-            {
-                await r.deleteAuth(expected.id);
-            }
-        }
-        finally
-        {
-            c.end();
-        }
-    });
+        const actual = await r.findUserWithAuth(ServiceVK, profileId);
+        assert.deepEqual(expected, actual);
+    }));
 });
-*/
