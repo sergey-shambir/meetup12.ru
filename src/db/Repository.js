@@ -32,8 +32,12 @@ class Repository
         const auth = await selectAuth(this.client, serviceId, profileId);
         if (auth !== undefined)
         {
-            const user = await selectUserWithId(this.client, userId);
-            for (let auth of await selectAuthsWithUserId(this.client, userId))
+            const user = await selectUserWithId(this.client, auth.userId);
+            if (user === undefined)
+            {
+                return undefined;
+            }
+            for (let auth of await selectAuthsWithUserId(this.client, user.id))
             {
                 user.authorize(auth);
             }
@@ -43,10 +47,11 @@ class Repository
 
     /**
      * @param {User} user
+     * @return {Promise<void>}
      */
     async storeUser(user)
     {
-        transaction(this.client, async () => {
+        return await transaction(this.client, async () => {
             // Delete outdated auth objects
             for (let auth of await selectAuthsWithUserId(this.client, user.id))
             {
@@ -58,11 +63,20 @@ class Repository
 
             // Upsert user and his/here auths
             await upsertUser(this.client, user);
-            for (let auth of user.auths)
+            for (let service of Object.keys(user.auths))
             {
-                await upsertAuth(this.client, auth);
+                await upsertAuth(this.client, user.getAuthForService(service));
             }
         });
+    }
+
+    /**
+     * @param {User} user
+     * @return {Promise<void>}
+     */
+    async deleteUser(user)
+    {
+        await deleteUserWithId(this.client, user.id);
     }
 
     /**
@@ -186,6 +200,7 @@ async function selectAuthsWithUserId(client, userId)
         auths.push(new Auth({
             id: row.id,
             createdAt: row.created,
+            userId: userId,
             serviceId: row.service_id,
             profileId: row.profile_id,
             name: row.name,
@@ -196,14 +211,15 @@ async function selectAuthsWithUserId(client, userId)
 }
 
 /**
+ * @param {!Client} client
  * @param {string} serviceId - auth service ID
  * @param {string} profileId - service-specific profile ID
  * @returns {Auth}
  */
-async function selectAuth(serviceId, profileId)
+async function selectAuth(client, serviceId, profileId)
 {
-    const res = await this.client.query(`
-        SELECT "id", "created", "name", "photo_url"
+    const res = await client.query(`
+        SELECT "id", "created", "user_id", "name", "photo_url"
         FROM "auth"
         WHERE "service_id"=$1 AND "profile_id"=$2`,
         [serviceId, profileId]);
@@ -213,6 +229,7 @@ async function selectAuth(serviceId, profileId)
         return new Auth({
             id: row.id,
             createdAt: row.created,
+            userId: row.user_id,
             serviceId: serviceId,
             profileId: profileId,
             name: row.name,
@@ -229,36 +246,38 @@ async function upsertAuth(client, auth)
 {
     await client.query(`
         INSERT INTO "auth"
-            ("id", "created", "service_id", "profile_id", "name", "photo_url")
+            ("id", "created", "user_id", "service_id", "profile_id", "name", "photo_url")
         VALUES
-            ($1, $2, $3, $4, $5, $6)
+            ($1, $2, $3, $4, $5, $6, $7)
         ON CONFLICT (id)
         DO UPDATE SET
             "id"="excluded"."id",
             "created"="excluded"."created",
-            "service_id"="excluded"."service_id"
+            "user_id"="excluded"."user_id",
+            "service_id"="excluded"."service_id",
             "profile_id"="excluded"."profile_id",
             "name"="excluded"."name",
             "photo_url"="excluded"."photo_url"`,
-        [auth.id, auth.createdAt, auth.serviceId, auth.profileId, auth.name, auth.photoUrl]);
+        [auth.id, auth.createdAt, auth.userId, auth.serviceId, auth.profileId, auth.name, auth.photoUrl]);
 }
 
 /**
  * @param {Client} client
  * @param {User} user
  */
-async function upsertUser(user)
+async function upsertUser(client, user)
 {
-    await this.client.query(`
+    await client.query(`
         INSERT INTO "user"
-            ("id", "name", "photoUrl")
+            ("id", "created", "name", "photo_url")
         VALUES
-            ($1, $2, $3)
+            ($1, $2, $3, $4)
         ON CONFLICT (id)
         DO UPDATE SET
             "name"="excluded"."name",
-            "photoUrl"="excluded"."photoUrl"`,
-        [user.id, user.name, user.photoUrl]);
+            "created"="excluded"."created",
+            "photo_url"="excluded"."photo_url"`,
+        [user.id, user.createdAt, user.name, user.photoUrl]);
 }
 
 /**
@@ -267,11 +286,16 @@ async function upsertUser(user)
  */
 async function selectUserWithId(client, userId)
 {
-    const res = await client.query(
-        'SELECT "created", "name", "photo_url" FROM "user"'
-        + ' INNER JOIN "auth_ref" ON "user"."id"="auth_ref"."user_id" WHERE "id"=$1',
-        [auth.id]);
+    const res = await client.query(`
+        SELECT "created", "name", "photo_url"
+        FROM "user"
+        WHERE "id"=$1`,
+        [userId]);
     const row = res.rows[0];
+    if (row == undefined)
+    {
+        return undefined;
+    }
     return new User({
         id: userId,
         createdAt: row.created,

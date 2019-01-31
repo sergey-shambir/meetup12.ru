@@ -20,16 +20,18 @@ class Auth
      * @param {{
      *  id: string,
      *  createdAt: Date,
+     *  userId: string,
      *  serviceId: string,
      *  profileId: string,
      *  name: string,
      *  photoUrl: string
      * }}
      */
-    constructor({id, createdAt, serviceId, profileId, name, photoUrl})
+    constructor({id, createdAt, userId, serviceId, profileId, name, photoUrl})
     {
         this.id = id;
         this.createdAt = createdAt;
+        this.userId = userId;
         this.serviceId = serviceId;
         this.profileId = profileId;
         this.name = name;
@@ -65,6 +67,7 @@ class User
         {
             throw new Error("cannot authorize twice on the same service");
         }
+        auth.userId = this.id;
         this.auths[auth.serviceId] = auth;
     }
 

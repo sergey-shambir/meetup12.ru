@@ -53,23 +53,30 @@ class DeferContext
 function wrap(cb)
 {
     return async () => {
-        const c = await initialize();
+        const client = await initialize();
         try
         {
-            const r = await c.connect();
             const dc = new DeferContext();
+            const conn = await client.connect();
             try
             {
-                await cb(r, dc);
+                try
+                {
+                    await cb(conn.repository(), dc);
+                }
+                finally
+                {
+                    await dc.end();
+                }
             }
             finally
             {
-                await dc.end();
+                await conn.release();
             }
         }
         finally
         {
-            await c.end();
+            await client.end();
         }
     };
 }
@@ -87,7 +94,7 @@ describe('meetup', () => {
             address: "ul. Kirova, 2018"
         });
         await r.storeMeetup(expected);
-        dc.defer(() => r.deleteMeetup(expected.id));
+        dc.defer(() => r.deleteMeetup(expected));
 
         const meetups = await r.findMeetups();
         const actual = findById(meetups, expected.id);
@@ -97,9 +104,8 @@ describe('meetup', () => {
     it('can be updated', wrap(async (r, dc) => {
         // Add one extra meetup to test if find does correct search.
         {
-            let id = generateId();
-            await r.storeMeetup(new Meetup({
-                id: id,
+            const extra = new Meetup({
+                id: generateId(),
                 createdAt: new Date("2011-03-25"),
                 serviceId: ServiceVK,
                 eventId: generateId(),
@@ -107,8 +113,9 @@ describe('meetup', () => {
                 description: "Should never be found",
                 startDate: new Date("2011-04-25"),
                 address: "ul. Pushkina"
-            }));
-            dc.defer(() => r.deleteMeetup(id));
+            });
+            await r.storeMeetup(extra);
+            dc.defer(() => r.deleteMeetup(extra));
         }
 
         const expected = new Meetup({
@@ -122,7 +129,7 @@ describe('meetup', () => {
             address: "ul. Kirova, 2018"
         });
         await r.storeMeetup(expected);
-        dc.defer(() => r.deleteMeetup(expected.id));
+        dc.defer(() => r.deleteMeetup(expected));
 
         expected.title = "New Meetup Title";
         await r.storeMeetup(expected);

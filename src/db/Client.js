@@ -1,6 +1,6 @@
 const pg = require('pg');
 const path = require('path');
-const Repository = require('./Repository');
+const Connection = require('./Connection');
 const { logger } = require('../core/logging');
 
 const sql_migrations = require('sql-migrations');
@@ -78,12 +78,12 @@ class Client
     }
 
     /**
-     * @returns {Promise<Repository>}
+     * @returns {Promise<Connection>}
      */
     async connect()
     {
         const client = await this.pool.connect();
-        return new Repository(client);
+        return new Connection(client);
     }
 
     /**
