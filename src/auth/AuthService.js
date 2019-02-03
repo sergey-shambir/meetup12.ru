@@ -7,6 +7,7 @@ const config = require('../core/config');
 const Client = require('../db/Client');
 const Repository = require('../db/Repository');
 const {
+    generateId,
     ServiceVK,
     ServiceMeetup,
     ServiceTimepad,
@@ -40,6 +41,14 @@ class AuthService
      */
     use(router)
     {
+        // Define how to serialize/deserialize user to/from session
+        passport.serializeUser((user, done) => {
+            done(null, user);
+        });
+        passport.deserializeUser((user, done) => {
+            done(null, user);
+        });
+
         let vkAppInfo = config.vkAppInfo();
         if (vkAppInfo)
         {
@@ -108,7 +117,7 @@ class AuthService
     async _authorize(profile, repo)
     {
         const profileId = profile.id;
-        const serviceId = profile.provider;
+        const serviceId = this._mapProviderToService(profile.provider);
 
         let user = await repo.findUserWithAuth(serviceId, profileId);
         if (!user)
@@ -134,6 +143,25 @@ class AuthService
             await repo.storeUser(user);
         }
         return user;
+    }
+
+    /**
+     * @param {string} provider
+     * @returns string
+     */
+    _mapProviderToService(provider)
+    {
+        const mapping = {
+            'vkontakte': 'vk',
+            'yandex': 'yandex',
+            'meetup': 'meetup',
+            'timepad': 'timepad'
+        }
+        if (!(provider in mapping))
+        {
+            throw new Error(`unknown auth provider: ${provider}`);
+        }
+        return mapping[provider];
     }
 }
 
