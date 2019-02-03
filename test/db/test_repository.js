@@ -170,4 +170,41 @@ describe('user', () => {
         const actual = await r.findUserWithAuth(ServiceVK, profileId);
         assert.deepEqual(expected, actual);
     }));
+
+    it('can authorize with different services', wrap(async (r, dc) => {
+        const profileId1 = "94712472147";
+        const profileId2 = "11111123111";
+        const expected = new User({
+            id: generateId(),
+            createdAt: new Date("2017-01-25"),
+            name: "Vasyanchik",
+            photoUrl: "http://vk.com/photoproto",
+        });
+        expected.authorize({
+            id: generateId(),
+            createdAt: new Date("2018-03-25"),
+            serviceId: ServiceVK,
+            profileId: profileId1,
+            name: "Vasyan",
+            photoUrl: "http://vk.com/photoblevota",
+        });
+
+        await r.storeUser(expected);
+        dc.defer(() => r.deleteUser(expected));
+
+        expected.authorize({
+            id: generateId(),
+            createdAt: new Date("2018-04-25"),
+            serviceId: ServiceTimepad,
+            profileId: profileId2,
+            name: "Vasya",
+            photoUrl: "http://timepad.ru/photoblevota",
+        });
+        await r.storeUser(expected);
+
+        const actual1 = await r.findUserWithAuth(ServiceVK, profileId1);
+        const actual2 = await r.findUserWithAuth(ServiceTimepad, profileId2);
+        assert.deepEqual(expected, actual1);
+        assert.deepEqual(expected, actual2);
+    }));
 });
