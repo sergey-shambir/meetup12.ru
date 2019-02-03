@@ -53,16 +53,6 @@ class Config
         };
     }
 
-    static siteHost()
-    {
-        let siteHost = nconf.get('SITE_URL');
-        if (!siteHost)
-        {
-            siteHost = 'http://localhost';
-        }
-        return siteHost;
-    }
-
     static sessionSecret()
     {
         const secret = nconf.get('SITE_SESSION_SECRET');
