@@ -9,7 +9,7 @@ const passport = require('passport');
 const errorhandler = require('errorhandler');
 const expressPromiseRouter = require('express-promise-router');
 
-const db = require('./db/Client');
+const Client = require('./db/Client');
 const config = require('./core/config');
 const logging = require('./core/logging');
 const { Server } = require('./core/server');
@@ -46,10 +46,10 @@ if (isDevEnv)
 app.use(passport.initialize());
 app.use(passport.session());
 
-const dbClient = new db.Client(config.dsn());
+const dbClient = new Client(config.dsn());
 
 const authRouter = new AuthRouter('/login');
-const authService = new AuthService(dbClient.repository());
+const authService = new AuthService(dbClient);
 authService.use(authRouter);
 app.use('/login', authRouter.makeRouter(authService.serviceIds(), '/', '/login'));
 

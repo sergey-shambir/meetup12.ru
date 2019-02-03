@@ -5,6 +5,7 @@ const AuthStrategyYandex = require('passport-yandex').Strategy;
 
 const config = require('../core/config');
 const Client = require('../db/Client');
+const Repository = require('../db/Repository');
 const {
     ServiceVK,
     ServiceMeetup,
@@ -82,38 +83,57 @@ class AuthService
     {
         try
         {
-            const repo = await this.client.connect();
-            const profileId = profile.id;
-            const serviceId = profile.provider;
-
-            let user = await repo.findUserWithAuth(serviceId, profileId);
-            if (!user)
+            const conn = await this.client.connect();
+            try
             {
-                const createdAt = new Date();
-                const name = profile.displayName;
-                const photoUrl = profile.photos[0];
-                user = new User({
-                    id: generateId(),
-                    createdAt: createdAt,
-                    name: name,
-                    photoUrl: photoUrl,
-                });
-                user.authorize(new Auth({
-                    id: generateId(),
-                    createdAt: createdAt,
-                    name: name,
-                    photoUrl: photoUrl,
-                    profileId: profileId,
-                    serviceId: serviceId,
-                }));
-                await repo.storeUser(user);
+                const user = await this._authorize(profile, conn.repository());
+                done(null, user);
             }
-            done(null, user);
+            finally
+            {
+                await conn.release();
+            }
         }
         catch (err)
         {
             done(err);
         }
+    }
+
+    /**
+     * @param {passport.Profile} profile
+     * @param {Repository} repo
+     * @returns Promise<User> 
+     */
+    async _authorize(profile, repo)
+    {
+        const profileId = profile.id;
+        const serviceId = profile.provider;
+
+        let user = await repo.findUserWithAuth(serviceId, profileId);
+        if (!user)
+        {
+            const createdAt = new Date();
+            const name = profile.displayName;
+            const photoUrl = profile.photos[0];
+            user = new User({
+                id: generateId(),
+                createdAt: createdAt,
+                name: name,
+                photoUrl: photoUrl,
+            });
+            user.authorize(new Auth({
+                id: generateId(),
+                createdAt: createdAt,
+                name: name,
+                photoUrl: photoUrl,
+                profileId: profileId,
+                serviceId: serviceId,
+            }));
+
+            await repo.storeUser(user);
+        }
+        return user;
     }
 }
 

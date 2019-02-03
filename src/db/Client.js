@@ -47,7 +47,7 @@ class Client
     /**
      * @returns {Promise<void>}
      */
-    async initialize({quiet = false})
+    async initialize({quiet = false} = {})
     {
         // setup database before first use
         const migrationConfig = Object.assign({
