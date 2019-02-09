@@ -20,34 +20,26 @@ const staticDir = path.join(__dirname, 'www');
 const viewsDir = path.join(__dirname, 'views');
 
 const app = express();
-const isDevEnv = (app.get('env') == 'dev');
 
 app.set('views', viewsDir);
 app.set('view engine', 'ejs');
 
 app.use(favicon(path.join(staticDir, 'favicon.ico')));
-
 app.use(compression());
-
 app.use(timeout('3s'));
-
 app.use(cookieSession({
     name: 'session',
     keys: [ config.sessionSecret() ],
 }));
-
 app.use(logging.logResponse);
-
-if (isDevEnv)
+if (config.isDevEnv())
 {
     app.use(errorhandler());
 }
-
 app.use(passport.initialize());
 app.use(passport.session());
 
 const dbClient = new Client(config.dsn());
-
 const authRouter = new AuthRouter('/login');
 const authService = new AuthService(dbClient);
 authService.use(authRouter);
@@ -61,13 +53,12 @@ router.get('/', function(req, res) {
 });
 
 router.get('/events', function(req, res) {
-    const page = {
-        navbar: {
-            pageUrl: req.path
-        }
-    };
     res.render('events', {
-        page: page
+        page: {
+            navbar: {
+                pageUrl: req.path
+            }
+        }
     });
 });
 

@@ -17,6 +17,12 @@ if (configPath)
 
 class Config
 {
+    static isDevEnv()
+    {
+        const env = process.env.NODE_ENV;
+        return env == 'dev';
+    }
+
     static portHttp()
     {
         const portStr = nconf.get('SITE_PORT_HTTP');
