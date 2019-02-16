@@ -30,12 +30,23 @@
       name: 'Участники',
     }); %>
     </div>
-    <div class="navbar-nav">
-      <%- include('../components/navlink', {
-        pageUrl: navbar.pageUrl,
-        url: '/login',
-        name: 'Войти',
-      }); %>
-    </div>
+    <% if (navbar.userName) { %>
+      <div class="navbar-nav">
+        <div class="nav-item">
+          <% if (navbar.userPhoto) %>
+            <img src="<%= navbar.userPhoto %>" width="32px" height="32px"></img>
+          <% } %>
+          <a class="nav-link" href="/profile"><%= navbar.userName %></a>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="navbar-nav">
+        <%- include('../components/navlink', {
+          pageUrl: navbar.pageUrl,
+          url: '/login',
+          name: 'Войти',
+        }); %>
+      </div>
+    <% } %>
   </div>
 </nav>

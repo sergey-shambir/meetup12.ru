@@ -15,6 +15,7 @@ const logging = require('./core/logging');
 const { Server } = require('./core/server');
 const AuthService = require('./auth/AuthService');
 const AuthRouter = require('./auth/AuthRouter');
+const SiteService = require('./site/SiteService');
 
 const staticDir = path.join(__dirname, 'www');
 const viewsDir = path.join(__dirname, 'views');
@@ -42,6 +43,7 @@ app.use(passport.session());
 const dbClient = new Client(config.dsn());
 const authRouter = new AuthRouter('/login');
 const authService = new AuthService(dbClient);
+const siteService = new SiteService();
 authService.use(authRouter);
 app.use('/login', authRouter.makeRouter(authService.serviceIds(), '/', '/login'));
 
@@ -55,21 +57,16 @@ router.get('/', function(req, res) {
 router.get('/events', function(req, res) {
     res.render('events', {
         page: {
-            navbar: {
-                pageUrl: req.path
-            }
+            navbar: siteService.getNavbarOptions(req),
         }
     });
 });
 
 router.get('/events/new', function(req, res) {
-    const page = {
-        navbar: {
-            pageUrl: req.path
-        }
-    };
     res.render('events-new', {
-        page: page
+        page: {
+            navbar: siteService.getNavbarOptions(req),
+        }
     });
 });
 
@@ -78,35 +75,26 @@ router.post('/events/new', function(req, res) {
 });
 
 router.get('/login', function(req, res) {
-    const page = {
-        navbar: {
-            pageUrl: req.path
-        }
-    }
     res.render('login', {
-        page: page
+        page: {
+            navbar: siteService.getNavbarOptions(req),
+        }
     });
 });
 
 router.get('/profile', function(req, res) {
-    const page = {
-        navbar: {
-            pageUrl: req.path
-        }
-    };
     res.render('profile', {
-        page: page
+        page: {
+            navbar: siteService.getNavbarOptions(req),
+        }
     });
 });
 
 router.get('/members', function(req, res) {
-    const page = {
-        navbar: {
-            pageUrl: req.path
-        }
-    };
     res.render('members', {
-        page: page
+        page: {
+            navbar: siteService.getNavbarOptions(req),
+        }
     });
 });
 
