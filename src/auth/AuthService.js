@@ -124,7 +124,7 @@ class AuthService
         {
             const createdAt = new Date();
             const name = profile.displayName;
-            const photoUrl = profile.photos && profile.photos[0];
+            const photoUrl = profile.photos && profile.photos[0].value;
             user = new User({
                 id: generateId(),
                 createdAt: createdAt,

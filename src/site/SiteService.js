@@ -14,3 +14,5 @@ class SiteService
         }
     }
 }
+
+module.exports = SiteService;
